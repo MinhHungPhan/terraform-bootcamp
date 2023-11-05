@@ -1,161 +1,100 @@
-# Terraform Sensitive Variables
+# Securing Sensitive Variables using tfvars Files
 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-- [Setting up Variables](#setting-up-variables)
-- [Applying Terraform Changes](#applying-terraform-changes)
-- [Error: Output refers to sensitive values](#error-output-refers-to-sensitive-values)
-- [Verifying Sensitive Values](#verifying-sensitive-values)
-- [Cleaning Up](#cleaning-up)
+- [Understanding Variable Definitions in Terraform](#understanding-variable-definitions-in-terraform)
+- [Securing Sensitive Variable Definitions](#securing-sensitive-variable-definitions)
+- [Creating the `.tfvars` File](#creating-the-tfvars-file)
+- [Updating Variable Definitions](#updating-variable-definitions)
+- [Testing Our Configuration](#testing-our-configuration)
 - [Conclusion](#conclusion)
 - [References](#references)
 
 ## Introduction
 
-Welcome to this guide on handling sensitive values in Terraform. Terraform is a popular Infrastructure as Code (IaC) tool used for building, changing, and versioning infrastructure efficiently. In some cases, you might handle sensitive information like passwords, secret keys, or other confidential data. It is crucial to ensure that such sensitive information is not exposed in your command line interface (CLI) outputs or logs. Since Terraform version 0.14, a feature has been introduced to handle sensitive values securely: the sensitive flag. This guide will walk you through the steps to use this feature effectively.
+Welcome to this guide on securing your variable definitions in Terraform. As we build and manage infrastructures, the way we handle variables, especially sensitive ones, plays a crucial role in maintaining the security and integrity of our systems. In this tutorial, we'll learn how to properly manage and secure variable definitions, using `variables.tf` and `.tfvars` files. Our focus will be on ensuring that sensitive information is not inadvertently committed to version control, thereby preserving the confidentiality of our infrastructure's configuration.
 
-## Prerequisites
+## Understanding Variable Definitions in Terraform
 
-Before we begin, ensure that you have the following prerequisites:
+Variable definitions in Terraform are commonly stored in a file named `variables.tf`. This file includes declarations of variables used within your Terraform configuration, typically found in your `main.tf` file. These declarations allow Terraform to interactively request values or use default values if none are provided by the user. 
 
-- Terraform installed (version 0.14 or later).
-- Basic understanding of Terraform syntax and commands.
-
-## Setting up Variables
-
-Sensitive values can be marked in your Terraform configuration to prevent them from being displayed on the CLI. You can do this by adding `sensitive = true` to your variable declarations. Here’s how you can do it:
-
-### variables.tf
+For example, a basic `int_port` variable declaration in `variables.tf` might look like this:
 
 ```hcl
-variable "ext_port" {
+variable "int_port" {
   type        = number
-  sensitive  = true
-  default     = 76423
+  default     = 1880
   validation {
-    condition     = var.ext_port <= 65535 && var.ext_port > 0
-    error_message = "The external port must be in the valid range 0 - 65535."
+    condition     = var.int_port == 1880
+    error_message = "The internal port must be 1880."
   }
 }
 ```
 
-In this example, we've marked `ext_port` as a sensitive variable. This means that Terraform will treat this variable's value as sensitive and will take care to not display it in the CLI output.
+## Securing Sensitive Variable Definitions
 
-## Applying Terraform Changes
+While keeping variable definitions in `variables.tf` is essential, you must be cautious not to expose sensitive data, such as passwords or private keys. If your `main.tf` file references these sensitive variables, you would still include the variable block in the `variables.tf` for structure and documentation, but without the sensitive values hardcoded.
 
-After marking your variables as sensitive, the next step is to apply your Terraform changes. Before doing this, make sure to destroy any existing infrastructure to ensure a clean state:
+## Creating the `.tfvars` File
 
-```bash
-terraform destroy --auto-approve
-terraform apply --auto-approve
-```
+A `.tfvars` file is where you can define values for your variables that you don't want to commit to source control. You should configure your version control system (such as Git) to ignore this file using a `.gitignore` entry.
 
-Upon running `terraform apply`, you will notice that the output referring to sensitive values will not display the actual values but will instead mark them as sensitive.
+Here is how you can create a `terraform.tfvars` file:
 
-Expected ouput:
+1. Create a new file named `terraform.tfvars`.
+2. Add your sensitive variable definitions to this file.
 
-```js
-Error: Output refers to sensitive values
-
-  on outputs.tf line 7:
-  7: output "ip-address"
-```
-
-## Error: Output refers to sensitive values
-
-The error message "Error: Output refers to sensitive values" in Terraform indicates that you are trying to output a value that is marked as sensitive, without marking the output itself as sensitive.
-
-This can happen when you have a variable or a value within a resource that is marked as sensitive, and you are trying to expose this value through an output. Terraform requires that any output which includes sensitive information should also be marked as sensitive.
-
-### How to Resolve the Issue
-
-To resolve this issue, you need to mark the output as sensitive. Here is how you can modify the `outputs.tf` file:
-
-#### outputs.tf
+For instance, here's how you define an `ext_port` variable in `terraform.tfvars`:
 
 ```hcl
-output "ip-address" {
-  value       = [for i in docker_container.nodered_container[*] : join(":", [i.ip_address], i.ports[*]["external"])]
-  description = "The IP address and external port of the container"
-  sensitive   = true
-}
+ext_port = 1880
 ```
 
-In this example, the `ip-address` output is referencing a value from a Docker container, and it includes the external port which is marked as sensitive. By adding `sensitive = true` to the output, you are telling Terraform to treat this output as sensitive and to not display its value in the CLI output.
+Make sure to add the `terraform.tfvars` file to your `.gitignore` to prevent it from being committed:
 
-### Checking the Result
-
-### 1. Validate Terraform Configuration:
-
-Run the `terraform validate` command in your Terraform directory. This command will help ensure that your configuration is syntactically valid and internally consistent.
-
-```sh
-terraform validate
+```
+# .gitignore entry
+*.tfvars
 ```
 
-If everything is set up correctly, it should return a message saying that the configuration is valid.
+## Updating Variable Definitions
 
-### 2. Plan the Changes:
+Once you've set up your `.tfvars` file, you need to remove any sensitive default values from the `variables.tf` file and only leave the variable declaration structure intact. Here's how you can update it:
 
-Run the `terraform plan` command to see what changes Terraform intends to make based on your current configuration.
+1. Open your `variables.tf` file.
+2. Remove sensitive default values or replace them with generic placeholders.
+3. Save the file.
 
-```sh
+## Testing Our Configuration
+
+After setting up your variables and `.tfvars` files, test your configuration with the following Terraform commands:
+
+```shell
+# Destroy any existing infrastructure to start fresh
+terraform destroy --auto-approve
+
+# Preview changes without applying them
 terraform plan
-```
 
-Review the plan to ensure that no unexpected changes are going to be made. Pay attention to the output section of the plan to see how the sensitive output is handled.
-
-### 3. Apply the Changes:
-
-If you’re satisfied with the plan, run the `terraform apply` command to apply the changes.
-
-```sh
+# Apply changes to create the infrastructure
 terraform apply --auto-approve
 ```
 
-After applying the changes, Terraform will output the results. Sensitive outputs should be marked as `(sensitive value)` instead of showing the actual value.
-
-## Verifying Sensitive Values
-
-### 1. Test Accessing the Sensitive Output:
-
-Try to access the sensitive output using the `terraform output` command:
-
-```bash
-terraform output
-```
-
-This command should display `<sensitive>` instead of the actual value for any output marked as sensitive.
-
-### 2. Check Terraform State (Optional):
-
-You can also check the Terraform state file to ensure that sensitive values are not stored in plaintext. However, make sure to be careful when dealing with the state file, as it can contain sensitive information.
-
-```bash
-terraform show | grep external
-```
-
-Even though this command shows the entire state, sensitive values will still be marked as sensitive and will not be displayed.
-
-## Cleaning Up
-
-Once you are done, you might want to clean up and remove the sensitive flags from your variables and outputs, especially if you are planning to use these values later in your Terraform configuration.
-
-Simply remove the `sensitive = true` line from your variable and output declarations and apply the changes:
-
-```bash
-terraform apply --auto-approve
-```
+You should see Terraform using the values defined in your `terraform.tfvars` file without exposing them to source control.
 
 ## Conclusion
 
-Using the `sensitive` flag in Terraform is a straightforward and effective way to protect sensitive values and ensure they are not accidentally exposed in CLI outputs or logs. This feature enhances the security of your Terraform configurations and helps in maintaining best practices for handling confidential data.
+By following the steps outlined in this guide, you've learned how to secure your variable definitions in Terraform. Using a `.tfvars` file is a best practice for managing sensitive values, ensuring they are kept out of version control and reducing the risk of exposing sensitive information.
+
+As you continue learning Terraform, remember that security is not a one-time setup but a continuous process of validation and improvement. Always review and refine your approach to handling sensitive configuration details.
 
 ## References
 
-- [Terraform Documentation](https://www.terraform.io/docs/language/values/variables.html)
-- [Output Values - Terraform by HashiCorp](https://www.terraform.io/language/values/outputs)
-- [Sensitive Output Values - Terraform by HashiCorp](https://www.terraform.io/language/values/outputs#sensitive-output-values)
-- [How-to output sensitive data with Terraform](https://support.hashicorp.com/hc/en-us/articles/5175257151891-How-to-output-sensitive-data-with-Terraform)
+For more information on variable definitions and security best practices in Terraform, refer to the following resources:
+
+- [Terraform: Input Variables](https://www.terraform.io/docs/language/values/variables.html)
+- [Terraform: Assigning Variables](https://www.terraform.io/docs/language/values/variables.html#assigning-values-to-root-module-variables)
+- [GitHub: .gitignore Template for Terraform](https://github.com/github/gitignore/blob/master/Terraform.gitignore)
+
+Keep exploring and happy coding! 🚀
