@@ -11,7 +11,6 @@ variable "int_port" {
 variable "ext_port" {
   type        = number
   sensitive  = true
-  default     = 76423
   validation {
     condition     = var.ext_port <= 65535 && var.ext_port > 0
     error_message = "The external port must be in the valid range 0 - 65535."
