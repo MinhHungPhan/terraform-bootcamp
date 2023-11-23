@@ -78,4 +78,4 @@ Throughout this guide, you've learned how to work with `.tfvars` files to manage
 
 - [Terraform documentation on variables](https://developer.hashicorp.com/terraform/language/values/variables#variable-definition-precedence).
 
-Please consider this lesson complete and feel free to proceed to the next one to continue expanding your understanding of Terraform's capabilities.
+Please consider this lesson complete and feel free to proceed to the next one to continue expanding your understanding of Terraform's capabilities. Happy Coding! 🚀
