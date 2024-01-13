@@ -15,6 +15,15 @@ variable "int_port" {
   }
 }
 
+variable "image" {
+  type = map
+  description = "Image for container"
+  default = {
+      dev = "nodered/node-red:latest"
+      prod = "nodered/node-red:latest-minimal"
+  }
+}
+
 variable "ext_port" {
   type        = list
   sensitive  = true
