@@ -1,4 +1,11 @@
 # Variables
+
+variable "env" {
+  type = string
+  description = "Environment to deploy to"
+  default = "dev"
+}
+
 variable "int_port" {
   type        = number
   default     = 1880
