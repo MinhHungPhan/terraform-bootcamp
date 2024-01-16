@@ -25,15 +25,19 @@ variable "image" {
 }
 
 variable "ext_port" {
-  type        = list
-  sensitive  = true
-  default     = 76423
+  type = map
+
   validation {
-    condition     = max(var.ext_port...) <= 65535 && min(var.ext_port...) > 0
-    error_message = "The external port must be in the valid range 0 - 65535."
+    condition     = max(var.ext_port["dev"]...) <= 65535 && min(var.ext_port["dev"]...) >= 1980
+    error_message = "The external port for dev must be in the range 1980 - 65535."
+  }
+
+  validation {
+    condition     = max(var.ext_port["prod"]...) < 1980 && min(var.ext_port["prod"]...) >= 1880
+    error_message = "The external port for prod must be in the range 1880 - 1979."
   }
 }
 
 locals {
-  container_count = length(var.ext_port)
+  container_count = length(lookup(var.ext_port, var.env))
 }
