@@ -18,7 +18,7 @@ resource "null_resource" "dockervol" {
 }
 
 resource "docker_image" "nodered_image" {
-  name = lookup(var.image, var.env)
+  name = lookup(var.image, terraform.workspace)
 }
 
 resource "random_string" "random" {
@@ -30,12 +30,12 @@ resource "random_string" "random" {
 
 resource "docker_container" "nodered_container" {
   count = local.container_count
-  name  = join("-", ["nodered", random_string.random[count.index].result])
+  name  = join("-", ["nodered", terraform.workspace, random_string.random[count.index].result])
   image = docker_image.nodered_image.latest
 
   ports {
     internal = var.int_port
-    external = lookup(var.ext_port, var.env)[count.index]
+    external = lookup(var.ext_port, terraform.workspace)[count.index]
   }
   volumes {
     container_path = "/data"
