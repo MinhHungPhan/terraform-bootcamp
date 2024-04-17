@@ -56,6 +56,8 @@ The `.terraform` directory contains the providers required for your Terraform co
 
 **Note**: Keep in mind that the `.terraform` directory can grow in size and should not be included in your source control system. Therefore, remember to add it to your `.gitignore` file or delete it before committing.
 
+The `.terraform.lock.hcl` file in Terraform ensures consistent provider versions across all environments by locking down their versions and checksums. It is also generated during `terraform init` and should be included in version control to maintain uniformity across different setups. Reviewing and committing this file is crucial for stable and predictable infrastructure management.
+
 ## Exploring the Terraform Init Command
 
 While the command `terraform init` seems simple, it offers a host of options that you can explore. To see these options, use the command:
