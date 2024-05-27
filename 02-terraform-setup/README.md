@@ -77,10 +77,10 @@ Now you are ready to run Terraform. Initialize your Terraform configuration with
 terraform init
 ```
 
-## Relevant Documentation
-
-You can follow the official Terraform installation guide to install Terraform on Ubuntu. The guide can be found at: [Terraform Installation](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-
 ## Conclusion
 
 Congratulations! You have set up your Terraform configuration. Now you can use the `terraform` command to plan and apply your infrastructure changes. For more information on how to use Terraform, see the [official Terraform documentation](https://www.terraform.io/docs/index.html).
+
+## References
+
+- [Terraform Installation](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
