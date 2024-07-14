@@ -1,12 +1,12 @@
-# AWS Account Setup and Security
+# AWS Account Setup
 
 ## Table of Contents
 
 - [Introduction](#introduction)
 - [Account Creation](#account-creation)
 - [Account Security](#account-security)
-- [Relevant Documentation](#relevant-documentation)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
