@@ -7,6 +7,7 @@ This guide provides instructions on how to grant IAM users access to AWS billing
 - [Introduction](#introduction)
 - [Instructions](#instructions)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
@@ -28,10 +29,10 @@ Follow these steps to grant IAM users access to AWS billing information:
 
 Now, your IAM users with administrative access are granted the ability to view billing information on the AWS account.
 
-## Relevant Documentation
-
-For further information, you can refer to the [official aws documentation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/control-access-billing.html#ControllingAccessWebsite-Permissions).
-
 ## Conclusion
 
 Enabling IAM user access to AWS billing information is an important step to ensure transparency and accountability in managing your AWS costs. By following the instructions provided in this guide, you have successfully granted IAM users access to billing information, allowing them to monitor and analyze AWS expenses effectively.
+
+## References
+
+- [Overview of managing access permissions](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/control-access-billing.html#ControllingAccessWebsite-Permissions).
