@@ -1,4 +1,4 @@
-# Securing Your AWS Account
+# Securing AWS Account
 
 This tutorial provides a guide on how to follow best practices for AWS account administration and how to enforce multi-factor authentication (MFA) on AWS IAM accounts.
 
@@ -12,6 +12,7 @@ This tutorial provides a guide on how to follow best practices for AWS account a
 - [Changing Sign-in Credentials](#changing-sign-in-credentials)
 - [Logging In as the Administrative User](#logging-in-as-the-administrative-user)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
@@ -51,11 +52,11 @@ Head back to the dashboard and change your sign-in credentials. Customize your a
 
 Log back in as your administrative user using the new sign-in link and credentials you just set up.
 
-## Relevant Documentation
-
-- [Best practices for AWS account administration](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
-- [Creating IAM users and adding them to groups](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
-
 ## Conclusion
 
 By following the best practices for AWS account administration and enforcing multi-factor authentication, you can enhance the security of your AWS IAM accounts and protect your resources from unauthorized access.
+
+## References
+
+- [Best practices for AWS account administration](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
+- [Creating IAM users and adding them to groups](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
