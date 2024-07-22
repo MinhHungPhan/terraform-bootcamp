@@ -1,4 +1,4 @@
-# Expanding the AWS Cloud9 Instance Volume
+# Expanding AWS Cloud9 Instance Volume
 
 Hello and welcome back! Throughout this course, you will be dealing with a significant amount of data, including downloading Docker images and installing various files and applications. Due to this heavy filesystem usage, you may run out of storage space on your Cloud9 instance. This guide will demonstrate how you can expand your Cloud9 volume to avoid such issues.
 
@@ -9,8 +9,8 @@ Hello and welcome back! Throughout this course, you will be dealing with a signi
 - [Cleaning Up](#cleaning-up)
 - [Expanding the Volume](#expanding-the-volume)
 - [Verifying the Changes](#verifying-the-changes)
-- [Relevant Documentation](#relevant-documentation)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
@@ -77,11 +77,13 @@ This command will resize the volume to 30 GB.
 
 After the resize process finishes, you can verify the changes using the `df` command. This will show you the new size, used space, and available space.
 
-## Relevent Documentation
-
-- [AWS Cloud9 Documentation](https://docs.aws.amazon.com/cloud9/latest/user-guide/welcome.html)
-- [Docker System Prune](https://docs.docker.com/engine/reference/commandline/system_prune/)
-
 ## Conclusion
 
 Congratulations! You have now successfully expanded the volume size of your AWS Cloud9 instance, providing you with ample space to download images, install applications, and carry out other tasks throughout this course.
+
+## References
+
+- [Docker System Prune](https://docs.docker.com/engine/reference/commandline/system_prune/)
+- [AWS Cloud9 Documentation](https://docs.aws.amazon.com/cloud9/latest/user-guide/welcome.html)
+- [Moving an environment and resizing or encrypting Amazon EBS volumes](https://docs.aws.amazon.com/cloud9/latest/user-guide/move-environment.html)
+
