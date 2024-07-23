@@ -1,4 +1,6 @@
-# Configuring Security Group
+# AWS Security Group Setup
+
+Welcome to the AWS Security Group Setup guide! In this tutorial, we will walk you through the process of configuring security groups for your Cloud9 instance in AWS. Security groups play a crucial role in controlling inbound and outbound traffic to your instance, ensuring that your applications are secure and accessible only to authorized sources. By following the steps outlined in this guide, you will be able to set up and manage the security groups effectively. Let's get started!
 
 ## Table of Contents
 
@@ -6,12 +8,12 @@
 - [Accessing Your Cloud9 Instance](#accessing-your-cloud9-instance)
 - [Security Group Configuration](#security-group-configuration)
 - [Obtaining Your IP Address](#obtaining-your-ip-address)
-- [Relevant Documentation](#relevant-documentation)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
-Welcome back! In this guide, we will continue where we left off with our Cloud9 setup. It's crucial that our local machine has the necessary access to interact with our Cloud9 instance. This includes viewing any running containers, websites, or applications that are hosted on it. We will also cover how to navigate to the AWS console, locate the instance, and adjust security settings accordingly.
+In this guide, we will continue where we left off with our Cloud9 setup. It's crucial that our local machine has the necessary access to interact with our Cloud9 instance. This includes viewing any running containers, websites, or applications that are hosted on it. We will also cover how to navigate to the AWS console, locate the instance, and adjust security settings accordingly.
 
 ## Accessing Your Cloud9 Instance
 
@@ -21,7 +23,7 @@ To access your Cloud9 instance, follow these steps:
 
 2. Type "Cloud9" in the search bar and press Enter or click on the magnifying glass icon to initiate the search.
 
-**Note**: If the search results don't appear immediately, wait for a moment as it may take some time to populate.
+> **Note**: If the search results don't appear immediately, wait for a moment as it may take some time to populate.
 
 3. Once the search results are displayed, look for and click on the "Cloud9" service among the listed options. This action will take you to the Cloud9 console.
 
@@ -49,7 +51,16 @@ To configure the security group for your Cloud9 instance, perform the following 
 
 7. Specify the source for the inbound traffic. To permit all traffic from your local machine, choose the option to specify an IP address or IP range. Enter the IP address or IP range that corresponds to your local machine's network.
 
-**Note**: If you're unsure about the IP address or range to enter, you can usually find it by searching for "What is my IP address" on a search engine using your local machine.
+Here is an example for the security group configuration with an inbound rule allowing all traffic from your IP address:
+
+| Rule Type   | Protocol | Port Range | Source            | Description                             |
+|-------------|----------|------------|-------------------|-----------------------------------------|
+| All Traffic | All      | All        | [Your IP address] | Allow all traffic from your IP address  |
+
+- Replace `[Your IP address]` with the actual IP address or IP range of your local machine.
+- This configuration will allow all types of traffic from your specified IP address to access your Cloud9 instance.
+
+> **Note**: If you're unsure about the IP address or range to enter, you can usually find it by searching for "What is my IP address" on a search engine using your local machine.
 
 8. Optionally, you can limit the ports for the inbound rule if needed. However, if you're using varying port ranges, it's suggested to leave the ports unrestricted to grant all access.
 
@@ -71,13 +82,13 @@ To obtain your IP address, follow the steps below:
 
 5. Save the rule and make sure to update it if your IP address changes in the future.
 
-**Note:** Regularly review and update the rule as needed to maintain access to your applications.
-
-## Relevant Documentation
-
-- [AWS Cloud9 Documentation](https://docs.aws.amazon.com/cloud9/latest/user-guide/welcome.html)
-- [AWS Security Groups for Your VPC](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html)
+> **Note:** Regularly review and update the rule as needed to maintain access to your applications.
 
 ## Conclusion
 
 In this guide, we've established how to grant secure access to your Cloud9 instance from your local machine. Remember to check your security settings if your IP address changes or if you encounter issues with your applications. This guide is a stepping stone in your AWS Cloud9 journey. Thank you for following along, and stay tuned for the upcoming sections of this course. Happy coding!
+
+## References
+
+- [AWS Cloud9 Documentation](https://docs.aws.amazon.com/cloud9/latest/user-guide/welcome.html)
+- [AWS Security Groups for Your VPC](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html)
