@@ -1,4 +1,4 @@
-# Terraform Setup Guide
+# Terraform Setup
 
 This README provides a step-by-step guide on setting up the Terraform configuration.
 
@@ -6,8 +6,8 @@ This README provides a step-by-step guide on setting up the Terraform configurat
 
 - [Pre-requisites](#pre-requisites)
 - [Setup Instructions](#setup-instructions)
-- [Relevant Documentation](#relevant-documentation)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Pre-requisites
 
@@ -51,7 +51,7 @@ Now you can run the script:
 ./setup_git.sh
 ```
 
-**Note**: To locate the `setup_git.sh` file, navigate to the following [directory](/02-terraform-setup/scripts/setup_git.sh)
+> **Note**: To locate the `setup_git.sh` file, navigate to the following [directory](/02-terraform-setup/scripts/setup_git.sh)
 
 ### Step 2: Run the install_terraform.sh bash script
 
@@ -67,7 +67,7 @@ Now you can run the script:
 ./install_terraform.sh
 ```
 
-**Note**: To locate the `install_terraform` file, navigate to the following [directory](/02-terraform-setup/scripts/install_terraform.sh)
+> **Note**: To locate the `install_terraform` file, navigate to the following [directory](/02-terraform-setup/scripts/install_terraform.sh)
 
 ### Step 3: Run Terraform
 
@@ -79,8 +79,9 @@ terraform init
 
 ## Conclusion
 
-Congratulations! You have set up your Terraform configuration. Now you can use the `terraform` command to plan and apply your infrastructure changes. For more information on how to use Terraform, see the [official Terraform documentation](https://www.terraform.io/docs/index.html).
+Congratulations! You have set up your Terraform configuration. Now you can use the `terraform` command to plan and apply your infrastructure changes.
 
 ## References
 
+- [Terraform Docs Overview](https://developer.hashicorp.com/terraform/docs)
 - [Terraform Installation](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
