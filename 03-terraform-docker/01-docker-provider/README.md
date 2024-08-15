@@ -1,4 +1,4 @@
-# Terraform with Docker
+# Terraform with Docker Provider
 
 ## Table of Contents
 
