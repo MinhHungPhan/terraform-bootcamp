@@ -52,7 +52,7 @@ In the final module, you'll learn about refreshing the state file to reflect the
 
 If you have any questions or need help, you can:
 - Open an issue in the GitHub repository
-- Contact the course maintainers via email at kientree@example.com
+- Contact the course maintainers via email at support@kientree.com
 - Join our community Slack channel for real-time assistance
 
 ## Conclusion
