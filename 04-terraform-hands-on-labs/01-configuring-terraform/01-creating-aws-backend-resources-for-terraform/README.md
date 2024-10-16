@@ -51,6 +51,58 @@ Terraform uses a backend to store state files. The AWS S3 bucket will serve as t
 - **S3 Bucket**: Stores the state file.
 - **DynamoDB Table**: Ensures state locking to prevent corruption from concurrent operations.
 
+## How It Works?
+
+The following sequence diagram outlines the process of setting up and using S3 and DynamoDB for Terraform state management:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant AWS CLI
+    participant S3 Bucket
+    participant DynamoDB
+
+    User->>AWS CLI: Create S3 Bucket
+    AWS CLI->>S3 Bucket: aws s3api create-bucket
+    S3 Bucket-->>User: Bucket Created
+
+    User->>AWS CLI: Enable Versioning
+    AWS CLI->>S3 Bucket: aws s3api put-bucket-versioning
+    S3 Bucket-->>User: Versioning Enabled
+
+    User->>AWS CLI: Enable Encryption
+    AWS CLI->>S3 Bucket: aws s3api put-bucket-encryption
+    S3 Bucket-->>User: Encryption Enabled
+
+    User->>AWS CLI: Create DynamoDB Table for Locking
+    AWS CLI->>DynamoDB: aws dynamodb create-table
+    DynamoDB-->>User: Table Created
+
+    User->>Terraform: Configure Backend (S3 + DynamoDB)
+    Terraform->>S3 Bucket: Store State Files
+    S3 Bucket-->>Terraform: State File Stored
+
+    Terraform->>DynamoDB: Lock State
+    DynamoDB-->>Terraform: Lock Acquired
+
+    Terraform->>S3 Bucket: Retrieve/Update State Files
+    S3 Bucket-->>Terraform: State Retrieved/Updated
+
+    Terraform->>DynamoDB: Release Lock
+    DynamoDB-->>Terraform: Lock Released
+```
+
+**Explanation**:
+
+1. **User creates the S3 bucket**: The user issues a command via AWS CLI to create the S3 bucket for storing Terraform state files.
+2. **Enable versioning**: The user enables versioning on the S3 bucket to track changes to the state files.
+3. **Enable encryption**: The user enables default encryption for the bucket to ensure that state files are securely stored.
+4. **Create DynamoDB table**: The user creates a DynamoDB table that will manage state locking to ensure that only one Terraform process can modify the state at a time.
+5. **Configure Terraform backend**: The user configures the Terraform backend to use the S3 bucket and DynamoDB for state management and locking.
+6. **Terraform interacts with S3 and DynamoDB**:
+    - It stores and retrieves state files from the S3 bucket.
+    - It locks and unlocks the state file using DynamoDB during the execution of operations to ensure no other process can interfere.
+
 ## Steps Overview
 
 1. Create an S3 bucket to store Terraform state files.
