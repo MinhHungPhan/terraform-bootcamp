@@ -79,17 +79,22 @@ sequenceDiagram
     DynamoDB-->>User: Table Created
 
     User->>Terraform: Configure Backend (S3 + DynamoDB)
-    Terraform->>S3 Bucket: Store State Files
+    Terraform->>S3 Bucket: Store Initial State Files
     S3 Bucket-->>Terraform: State File Stored
 
-    Terraform->>DynamoDB: Lock State
-    DynamoDB-->>Terraform: Lock Acquired
+    loop For each Terraform operation
+        Terraform->>DynamoDB: Lock State
+        DynamoDB-->>Terraform: Lock Acquired
 
-    Terraform->>S3 Bucket: Retrieve/Update State Files
-    S3 Bucket-->>Terraform: State Retrieved/Updated
+        Terraform->>S3 Bucket: Retrieve State File
+        S3 Bucket-->>Terraform: State File Retrieved
 
-    Terraform->>DynamoDB: Release Lock
-    DynamoDB-->>Terraform: Lock Released
+        Terraform->>S3 Bucket: Update State File
+        S3 Bucket-->>Terraform: State File Updated
+
+        Terraform->>DynamoDB: Release Lock
+        DynamoDB-->>Terraform: Lock Released
+    end
 ```
 
 **Explanation**:
