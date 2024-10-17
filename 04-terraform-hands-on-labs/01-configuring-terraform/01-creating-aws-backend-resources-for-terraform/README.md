@@ -8,6 +8,7 @@ Welcome to the guide for creating AWS backend resources to store and manage Terr
 - [Prerequisites](#prerequisites)
 - [AWS Backend Resources Overview](#aws-backend-resources-overview)
 - [Steps Overview](#steps-overview)
+- [How It Works?](#how-it-works)
 - [Step-by-Step Guide](#step-by-step-guide)
    - [Step 1: Create an S3 Bucket](#step-1-create-an-s3-bucket)
    - [Step 2: Enable Versioning on the S3 Bucket](#step-2-enable-versioning-on-the-s3-bucket)
