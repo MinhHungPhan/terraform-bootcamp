@@ -1,0 +1,14 @@
+services:
+  terraform:
+    image: hashicorp/terraform:latest
+    container_name: terraform-container
+    volumes:
+      - ./setup:/terraform/setup
+      - ./deploy:/terraform/deploy
+    working_dir: /terraform
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=us-east-1
+      - TF_WORKSPACE=${TF_WORKSPACE}
