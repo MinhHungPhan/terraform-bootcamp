@@ -6,6 +6,7 @@ Welcome to this guide on configuring Docker Compose for Terraform! This document
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
+- [Why Running Terraform with Docker Compose](#why-running-terraform-with-docker-compose`)
 - [Setting Up Terraform with Docker Compose](#setting-up-terraform-with-docker-compose)
     - [Step 1: Creating `.gitignore` for Terraform Project](#step-1-creating-gitignore-for-terraform-project)
     - [Step 2: Creating the `infra` Directory](#step-2-creating-the-infra-directory)
@@ -25,6 +26,31 @@ Before you start, make sure you have:
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine.
 - [Docker Compose](https://docs.docker.com/compose/install/) installed.
 - Basic understanding of Docker, Docker Compose, and Terraform.
+
+## Why Running Terraform with Docker Compose
+
+Running Terraform with Docker Compose provides several benefits that enhance your infrastructure management and improve overall efficiency. Here are some key reasons why using Docker Compose with Terraform is a great practice:
+
+1. **Consistent and Isolated Environment**:
+- By running Terraform inside a Docker container, you ensure a consistent environment across different machines. All dependencies, such as the Terraform version and required tools, are encapsulated within the container. This eliminates the "works on my machine" problem and avoids conflicts with locally installed tools or software versions.
+
+2. **Simplified Dependency Management**:
+- With Docker Compose, you don’t need to manually install and maintain Terraform or other related tools on your local machine. The Docker image handles all dependencies, keeping your development environment clean and reducing setup time.
+
+3. **Improved Collaboration**:
+- When multiple team members are working on the same Terraform project, Docker Compose helps standardize the setup. By sharing a consistent Docker environment, everyone in the team can use the same versions of Terraform and other tools, which minimizes discrepancies between environments.
+
+4. **Enhanced Portability**:
+- The entire infrastructure configuration, including the environment, is defined in the `docker-compose.yml` file. This means that anyone can easily reproduce the setup by cloning the repository and running a simple command. This portability is especially useful for CI/CD pipelines, enabling automated deployment and testing.
+
+5. **Secure Handling of Credentials**:
+- Docker Compose allows you to pass environment variables securely, avoiding the need to hardcode sensitive information such as AWS credentials. By keeping sensitive data in environment files or using Docker secrets, you can enhance the security of your Terraform workflows.
+
+6. **Version Control for Infrastructure**:
+- Placing your Docker and Terraform configurations under version control ensures that any changes to the infrastructure or the environment setup are tracked. This versioning also allows you to roll back to a previous setup if something goes wrong.
+
+7. **Efficiency and Automation**:
+- Using Docker Compose, you can quickly start a Terraform container with pre-configured volume mappings and environment variables. This speeds up the process of running Terraform commands, deploying infrastructure, and testing configurations.
 
 ## Setting Up Terraform with Docker Compose
 
