@@ -87,7 +87,20 @@ Here, the `docker_container` will only be created after `null_resource.docker_vo
 
 ## Hands-On Lab
 
-### Step 1: Reproduce the Dependency Issue
+### Step 1: Adjust the Port Configuration
+
+1. **Set Only One Port for Each Environment**:
+
+Update `terraform.tfvars` to use a single port for each environment:
+
+```hcl
+ext_port = {
+   dev  = [1980]
+   prod = [1880]
+}
+```
+
+### Step 2: Reproduce the Dependency Issue
 
 1. **Create a Delay in Resource Creation**:
 
@@ -121,7 +134,7 @@ docker ps -a
 
 You'll notice the container is created before the volume, causing a failure.
 
-### Step 2: Visualize the Dependency
+### Step 3: Visualize the Dependency
 
 Generate the Terraform graph:
 
@@ -131,7 +144,7 @@ terraform graph | dot -Tpdf > graph-before-fix.pdf
 
 Inspect the graph to see the lack of dependency between the container and volume.
 
-### Step 3: Fix with Implicit Dependencies
+### Step 4: Fix with Implicit Dependencies
 
 1. Update `main.tf`:
 
@@ -166,7 +179,7 @@ terraform apply --auto-approve
 docker ps -a
 ```
 
-### Step 4: Fix with Explicit Dependencies
+### Step 5: Fix with Explicit Dependencies
 
 1. Update `main.tf`:
 
