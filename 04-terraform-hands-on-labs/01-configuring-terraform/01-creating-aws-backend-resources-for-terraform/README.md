@@ -120,9 +120,9 @@ sequenceDiagram
 
 This guide walks through the steps of setting up an S3 bucket for storing Terraform state files and a DynamoDB table for state locking. The following values will be used in this tutorial, but you can replace them with your own:
 
-- **S3 bucket name:** `kientree-terraform-tf-state`
+- **S3 bucket name:** `kite-terraform-tf-state`
 - **AWS region:** `us-east-1`
-- **DynamoDB table name:** `kientree-tf-lock`
+- **DynamoDB table name:** `kite-tf-lock`
 
 ### Step 1: Create an S3 Bucket
 
@@ -140,10 +140,10 @@ aws s3api create-bucket --bucket <your-bucket-name> --region <your-region>
 - Replace `<your-bucket-name>` with your desired bucket name.
 - Replace `<your-region>` with your preferred AWS region.
 
-In this tutorial, I'm using the bucket name `kientree-terraform-tf-state` and my AWS region is `us-east-1`:
+In this tutorial, I'm using the bucket name `kite-terraform-tf-state` and my AWS region is `us-east-1`:
 
 ```bash
-aws s3api create-bucket --bucket kientree-terraform-tf-state --region us-east-1
+aws s3api create-bucket --bucket kite-terraform-tf-state --region us-east-1
 ```
   
 ### Step 2: Enable Versioning on the S3 Bucket
@@ -158,10 +158,10 @@ aws s3api put-bucket-versioning --bucket <your-bucket-name> --versioning-configu
 
 This command configures the S3 bucket to store multiple versions of your state file, providing an additional layer of safety.
 
-For this tutorial, versioning will be enabled on the bucket `kientree-terraform-tf-state`:
+For this tutorial, versioning will be enabled on the bucket `kite-terraform-tf-state`:
 
 ```bash
-aws s3api put-bucket-versioning --bucket kientree-terraform-tf-state --versioning-configuration Status=Enabled
+aws s3api put-bucket-versioning --bucket kite-terraform-tf-state --versioning-configuration Status=Enabled
 ```
 
 ### Step 3: Enable Default Encryption on the S3 Bucket
@@ -182,10 +182,10 @@ aws s3api put-bucket-encryption --bucket <your-bucket-name> --server-side-encryp
 
 This command will set up default encryption using AWS-managed keys (SSE-S3, which uses AES-256 encryption).
 
-For this tutorial, the S3 bucket `kientree-terraform-tf-state` will use AES-256 encryption (SSE-S3):
+For this tutorial, the S3 bucket `kite-terraform-tf-state` will use AES-256 encryption (SSE-S3):
 
 ```bash
-aws s3api put-bucket-encryption --bucket kientree-terraform-tf-state --server-side-encryption-configuration '{
+aws s3api put-bucket-encryption --bucket kite-terraform-tf-state --server-side-encryption-configuration '{
   "Rules": [
     {
       "ApplyServerSideEncryptionByDefault": {
@@ -214,11 +214,11 @@ This command creates a table with a primary key named `LockID` that will handle 
 
 **Note**: Replace `<your-lock-table-name>` with your desired table name.
 
-For this tutorial, the DynamoDB table name will be `kientree-tf-lock`:
+For this tutorial, the DynamoDB table name will be `kite-tf-lock`:
 
 ```bash
 aws dynamodb create-table \
-    --table-name kientree-tf-lock \
+    --table-name kite-tf-lock \
     --attribute-definitions AttributeName=LockID,AttributeType=S \
     --key-schema AttributeName=LockID,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
