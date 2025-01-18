@@ -110,6 +110,14 @@ cd infra
 
 This directory will contain all necessary configuration files related to your Terraform and Docker setup, keeping your project organized.
 
+2. **Create the `deploy` and `setup` Directories**:
+
+```bash
+mkdir deploy setup
+```
+
+These directories will be used to separate different stages of Terraform configuration files, such as initial infrastructure setup and resource deployments.
+
 ### Step 3: Defining the `docker-compose.yml`
 
 Now, create the `docker-compose.yml` file inside the `infra` directory:
