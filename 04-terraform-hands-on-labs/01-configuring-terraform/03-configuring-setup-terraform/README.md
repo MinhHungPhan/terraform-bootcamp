@@ -29,23 +29,26 @@ sequenceDiagram
     participant FileSystem as Local File System
     participant AWS as AWS Cloud
 
+    Note over User: Step 1: Creating the `main.tf` File
     User->>FileSystem: Create directory named `setup`
     User->>FileSystem: Create `main.tf` file in the `setup` directory
     FileSystem-->>User: `main.tf` file created
 
+    Note over User: Step 2: Configuring the Backend
     User->>FileSystem: Add backend configuration to `main.tf`
-    User->>FileSystem: Add AWS provider configuration to `main.tf`
-    FileSystem-->>User: Backend and provider configuration added
-
+    FileSystem-->>User: Backend configuration added
     User->>AWS: Ensure S3 bucket `kite-terraform-tf-state` exists
     AWS-->>User: Confirm S3 bucket exists
-
     User->>AWS: Ensure DynamoDB table `kite-tf-lock` exists
     AWS-->>User: Confirm DynamoDB table exists
 
+    Note over User: Step 3: Adding a Provider
+    User->>FileSystem: Add AWS provider configuration to `main.tf`
+    FileSystem-->>User: Provider configuration added
+
+    Note over User: Step 4: Defining Variables
     User->>FileSystem: Create `variables.tf` file in the `setup` directory
     FileSystem-->>User: `variables.tf` file created
-
     User->>FileSystem: Add variable definitions to `variables.tf`
     FileSystem-->>User: Variable definitions added
 ```
