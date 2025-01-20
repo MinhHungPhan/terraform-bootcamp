@@ -156,6 +156,27 @@ This step is configuring Terraform to use the AWS provider.
 
 ### Configuring the Backend
 
+Update the backend configuration in `main.tf` as shown below:
+
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "s3" {
+    bucket         = "kite-terraform-tf-state"
+    key            = "kite-state-setup"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "kite-tf-lock"
+  }
+}
+```
+
 The backend defines where Terraform stores its state files. In this example:
 
 - **S3 Bucket**: `kite-terraform-tf-state` stores the Terraform state file.
