@@ -122,16 +122,37 @@ terraform {
       version = "~> 5.0"
     }
   }
-
-  backend "s3" {
-    bucket         = "kite-terraform-tf-state"
-    key            = "kite-state-setup"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "kite-tf-lock"
-  }
 }
 ```
+
+This step is configuring Terraform to use the AWS provider.
+
+**Code Breakdown**:
+
+1. **`terraform {}` Block**:
+
+- This block contains settings and configuration options for Terraform itself.
+- It can include required provider configurations, backend settings, or CLI options.
+
+2. **`required_providers`**:
+
+- This argument specifies the providers that Terraform will use in the configuration.
+- Providers are plugins that enable Terraform to manage specific resources (e.g., AWS, Azure, GCP).
+
+3. **`aws = {}`**:
+
+- The `aws` key specifies the AWS provider. This is the provider Terraform will use to interact with AWS services (e.g., EC2, S3, RDS).
+- The value is a block defining the provider's **source** and **version**.
+
+4. **`source = "hashicorp/aws"`**:
+
+- The `source` attribute specifies the location of the provider plugin.
+- `"hashicorp/aws"` means the provider is published and maintained by HashiCorp on the Terraform Registry.
+
+5. **`version = "~> 5.0"`**:
+
+- The `version` attribute specifies the version constraints for the AWS provider.
+- `~> 5.0` means the configuration is compatible with any **5.x** version of the provider, as long as the major version (5) remains the same. For example, it allows `5.0.1`, `5.1.0`, etc., but not `6.0.0`.
 
 ### Configuring the Backend
 
