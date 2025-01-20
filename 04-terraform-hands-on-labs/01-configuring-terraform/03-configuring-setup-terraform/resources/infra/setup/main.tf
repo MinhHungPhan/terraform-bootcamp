@@ -14,3 +14,15 @@ terraform {
     dynamodb_table = "kite-tf-lock"
   }
 }
+
+provider "aws" {
+  region = "us-east-1"
+  default_tags {
+    tags = {
+      environment = terraform.workspace
+      project     = var.project
+      contact     = var.contact
+      managed_by  = "Terraform/setup"
+    }
+  }
+}
