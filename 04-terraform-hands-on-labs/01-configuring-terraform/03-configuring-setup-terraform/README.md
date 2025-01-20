@@ -203,6 +203,24 @@ provider "aws" {
 }
 ```
 
+This step is configuring the AWS provider with specific settings and default tags.
+
+**Code Breakdown**:
+
+1. **Provider Configuration**:
+
+- Sets the AWS region (`us-east-1`) for deploying resources.
+
+2. **Terraform Workspace**:
+
+- `terraform.workspace` dynamically reflects the active environment (e.g., `dev`, `prod`) to ensure resources are correctly tagged and managed per workspace.
+
+3. **Default Tags**:
+
+- Automatically adds tags to all AWS resources for consistent metadata.
+- Uses variables (`var.project`, `var.contact`) and `terraform.workspace` for dynamic and environment-specific tagging.
+- Includes a static `managed_by` tag for clarity on resource management.
+
 ## Defining Variables
 
 Variables allow you to reuse and share configurations easily. In the `setup` directory, create a file named `variables.tf` and define the following:
