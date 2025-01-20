@@ -8,10 +8,10 @@ Welcome to this step-by-step guide for setting up Terraform on your local machin
 - [Hands-On Roadmap](#hands-on-roadmap)
 - [Terraform Dependencies](#terraform-dependencies)
 - [Setting Up Terraform](#setting-up-terraform)
-    - [Creating the `main.tf` File](#creating-the-main-tf-file)
-    - [Configuring the Backend](#configuring-the-backend)
-    - [Adding a Provider](#adding-a-provider)
-- [Defining Variables](#defining-variables)
+    - [Step 1: Creating the `main.tf` File](#step-1-creating-the-maintf-file)
+    - [Step 2: Configuring the Backend](#step-2-configuring-the-backend)
+    - [Step 3: Adding a Provider](#step-3-adding-a-provider)
+    - [Step 4: Defining Variables](#step-4-defining-variables)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
@@ -113,7 +113,7 @@ sequenceDiagram
 
 ## Setting Up Terraform
 
-### Creating the `main.tf` File
+### Step 1: Creating the `main.tf` File
 
 Start by creating a new directory named `setup`. Inside this directory, create a file named `main.tf` and add the following configuration:
 
@@ -157,7 +157,7 @@ This step is configuring Terraform to use the AWS provider.
 - The `version` attribute specifies the version constraints for the AWS provider.
 - `~> 5.0` means the configuration is compatible with any **5.x** version of the provider, as long as the major version (5) remains the same. For example, it allows `5.0.1`, `5.1.0`, etc., but not `6.0.0`.
 
-### Configuring the Backend
+### Step 2: Configuring the Backend
 
 Update the backend configuration in `main.tf` as shown below:
 
@@ -188,7 +188,7 @@ The backend defines where Terraform stores its state files. In this example:
 
 Ensure these resources exist in your AWS account.
 
-### Adding a Provider
+### Step 3: Adding a Provider
 
 Terraform providers are plugins that interact with cloud services. Add the AWS provider configuration to your `main.tf` file:
 
@@ -224,7 +224,7 @@ This step is configuring the AWS provider with specific settings and default tag
 - Uses variables (`var.project`, `var.contact`) and `terraform.workspace` for dynamic and environment-specific tagging.
 - Includes a static `managed_by` tag for clarity on resource management.
 
-## Defining Variables
+### Step 4: Defining Variables
 
 Variables allow you to reuse and share configurations easily. In the `setup` directory, create a file named `variables.tf` and define the following:
 
