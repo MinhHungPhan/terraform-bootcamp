@@ -29,6 +29,41 @@ We'll be using HashiCorp's Terraform to deploy our Node Red application. Terrafo
 
 Docker is a tool designed to ease the process of creating, deploying, and running applications by using containers. In our case, we'll be deploying a Node Red container using Docker.
 
+## Terraform Dependencies
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant TerraformCLI as Terraform CLI
+    participant MainTF as main.tf
+    participant DockerProvider as Docker Provider
+    participant ResourceMgr as Resource Manager
+
+    %% Init phase
+    User->>TerraformCLI: terraform init
+    TerraformCLI->>MainTF: Read configuration
+    MainTF->>DockerProvider: Load Docker provider (kreuzwerker/docker ~> 2.15.0)
+    DockerProvider-->>TerraformCLI: Provider initialized
+    TerraformCLI-->>User: Initialization successful
+
+    %% Plan phase
+    User->>TerraformCLI: terraform plan
+    TerraformCLI->>MainTF: Parse resources and provider dependencies
+    MainTF->>DockerProvider: Verify Docker provider
+    DockerProvider-->>MainTF: Provider verified
+    MainTF->>ResourceMgr: Identify resource dependencies (docker_image)
+    ResourceMgr-->>TerraformCLI: Resource plan generated
+    TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
+
+    %% Apply phase
+    User->>TerraformCLI: terraform apply
+    TerraformCLI->>ResourceMgr: Apply resource configurations
+    ResourceMgr->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
+    DockerProvider-->>ResourceMgr: Resource created
+    ResourceMgr-->>TerraformCLI: Apply complete
+    TerraformCLI-->>User: Apply successful
+```
+
 ## Creating Docker Image
 
 We will first create a Docker image using the Node Red Docker Hub repository. The Docker image name will be `nodered/node-red:latest`, which we'll define in our `main.tf` Terraform configuration file. 
