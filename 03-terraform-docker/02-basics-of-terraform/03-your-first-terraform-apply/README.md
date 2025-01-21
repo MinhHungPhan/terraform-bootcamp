@@ -6,6 +6,7 @@
 - [Node Red Application](#node-red-application)
 - [Terraform](#terraform)
 - [Docker](#docker)
+- [Terraform Dependencies](#terraform-dependencies)
 - [Creating Docker Image](#creating-docker-image)
 - [Terraform Commands](#terraform-commands)
 - [Conclusion](#conclusion)
