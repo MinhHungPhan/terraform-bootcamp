@@ -278,6 +278,9 @@ Setting up Terraform for your project involves defining providers, configuring a
 
 ## References
 
+- [Provider Requirements](https://developer.hashicorp.com/terraform/language/providers/requirements)
 - [Terraform AWS Provider Documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 - [Terraform Backend Configuration](https://developer.hashicorp.com/terraform/language/backend/s3)
 - [Default Tags in Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#default_tags)
+- [Terraform Workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces)
+- [Managing Workspaces](https://developer.hashicorp.com/terraform/cli/workspaces)
