@@ -9,6 +9,7 @@ Welcome to the guide for creating AWS backend resources to store and manage Terr
 - [AWS Backend Resources Overview](#aws-backend-resources-overview)
 - [Steps Overview](#steps-overview)
 - [How Terraform Stores and Retrieves State Files from S3?](#how-terraform-stores-and-retrieves-state-files-from-s3)
+- [How Terraform State Locking works in DynamoDB?](#how-terraform-state-locking-works-in-dynamodb)
 - [How It Works?](#how-it-works)
 - [Step-by-Step Guide](#step-by-step-guide)
    - [Step 1: Create an S3 Bucket](#step-1-create-an-s3-bucket)
@@ -165,6 +166,89 @@ If Terraform fails to retrieve the state file (e.g., due to network issues or mi
 - **Storing the Updated State (S3 PUT):** After operations are completed, Terraform updates the state file in the S3 bucket.
 - **State Encryption:** The state file can be encrypted for security, and IAM roles ensure that only Terraform has access to it.
 - **Locking:** DynamoDB is often used alongside S3 to lock the state file during operations, preventing multiple processes from making concurrent changes.
+
+## How Terraform State Locking works in DynamoDB?
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Terraform
+    participant DynamoDB
+
+    User->>Terraform: Run terraform apply
+    Terraform->>DynamoDB: Check if lock exists (LockID)
+    DynamoDB-->>Terraform: No lock exists
+    Terraform->>DynamoDB: Create lock (LockID, User, Timestamp)
+    DynamoDB-->>Terraform: Lock created successfully
+    Terraform->>User: Proceed with Terraform apply
+
+    Note over DynamoDB: Lock exists in DynamoDB (LockID)
+
+    User->>Terraform: Apply complete
+    Terraform->>DynamoDB: Remove lock (LockID)
+    DynamoDB-->>Terraform: Lock removed successfully
+    Terraform->>User: State unlocked, apply complete
+```
+
+### Steps for State Locking
+
+1. **Backend Configuration Parsing:**
+
+- When you run `terraform apply`, Terraform first reads your configuration, particularly the backend configuration where you’ve specified the use of S3 and DynamoDB for state management.
+- This backend configuration tells Terraform where to store the state (S3) and how to manage state locking (DynamoDB).
+
+2. **State Lock Request (DynamoDB Interaction):**
+
+- Before Terraform starts making any changes to your infrastructure, it attempts to lock the state. This is done to prevent any other processes (e.g., another person running `terraform apply` or `terraform plan` on the same project) from making changes at the same time.
+- **DynamoDB Table Entry:** Terraform sends a request to your DynamoDB table (which you configured for state locking) to create a lock. It inserts an item (row) in the table, typically using a unique `LockID` attribute. This lock contains metadata such as:
+  - A unique identifier (`LockID`)
+  - The name of the state file being locked
+  - The time the lock was acquired
+  - The process or user that acquired the lock
+  - Optionally, an owner ID or a Terraform workspace
+
+3. **Successful Lock Acquisition:**
+
+- If the lock is successfully created in the DynamoDB table, Terraform continues with the plan or apply process. The lock indicates that no other Terraform process can modify the state file at this point. Any other Terraform operation that tries to run will detect the lock and wait or fail until the lock is released.
+- This is achieved by checking the existence of the `LockID` in DynamoDB. If it's present, other processes are blocked from proceeding.
+
+4. **Concurrent Lock Prevention:**
+
+- If another process tries to run while the state is locked, Terraform will recognize the lock in DynamoDB and either:
+  - Fail and inform the user that the state is currently locked.
+  - Wait (depending on configuration) until the lock is released, then continue.
+- This ensures that only one Terraform process can modify the state at any given time, preventing inconsistent changes or conflicts.
+
+### Key DynamoDB Operations during Locking
+
+- **Insert Lock:** Terraform inserts a lock entry in the DynamoDB table with details about the lock request (state file, time, user, etc.).
+- **Check Lock:** Terraform continuously checks if a lock already exists before it proceeds. If the lock exists, it waits or fails.
+- **Remove Lock:** Once Terraform has finished making changes (or if the operation fails), it will remove the lock entry from DynamoDB, releasing the state for other processes.
+
+### Lock Entry Example in DynamoDB
+
+Here is an example of what a lock entry in DynamoDB might look like:
+
+| Attribute    | Value                        |
+|--------------|------------------------------|
+| **LockID**   | terraform.tfstate             |
+| **User**     | user@example.com              |
+| **Operation**| `terraform apply`             |
+| **Timestamp**| 2024-10-16T12:34:56Z          |
+| **Info**     | Terraform workspace info, etc.|
+
+This lock prevents other processes from modifying the state until the operation is complete.
+
+### Failures and Lock Recovery
+
+- If a Terraform process crashes or is interrupted, the lock might remain in DynamoDB. In that case, Terraform provides a manual unlock command (`terraform force-unlock`) to remove the lock, allowing you to regain control of the state file.
+
+### After Locking
+
+- Once the lock is acquired, Terraform retrieves the current state from the S3 bucket and proceeds with the infrastructure changes.
+- After the changes are applied, the state is updated in S3, and the lock is removed from DynamoDB, allowing others to work with the state again.
 
 ## How It Works?
 
