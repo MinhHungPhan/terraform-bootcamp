@@ -1,10 +1,11 @@
-# Docker Deployment Tutorial: Referencing Resources
+# Deploying Docker Container
 
 Welcome to our Docker Deployment Tutorial, where we'll take you on a step-by-step journey to deploy your first Docker container, emphasizing how to reference values from other resources.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Terraform Dependencies](#terraform-dependencies)
 - [Deploying a Docker Container](#deploying-a-docker-container)
 - [Referencing the Docker Image](#referencing-the-docker-image)
 - [Creating and Naming a Resource](#creating-and-naming-a-resource)
@@ -17,6 +18,47 @@ Welcome to our Docker Deployment Tutorial, where we'll take you on a step-by-ste
 ## Introduction
 
 Our main focus in this tutorial is to deploy a Docker container. We'll guide you on how to reference a Docker image and utilize it for deployment. The steps are designed to be straightforward, helping you to understand the core concepts without getting lost in the details.
+
+## Terraform Dependencies
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant TerraformCLI as Terraform CLI
+    participant MainTF as main.tf
+    participant DockerProvider as Docker Provider
+    participant ResourceMgr as Resource Manager
+
+    %% Init phase
+    User->>TerraformCLI: terraform init
+    TerraformCLI->>MainTF: Read configuration
+    MainTF->>DockerProvider: Load Docker provider (kreuzwerker/docker ~> 2.15.0)
+    DockerProvider-->>TerraformCLI: Provider initialized
+    TerraformCLI-->>User: Initialization successful
+
+    %% Plan phase
+    User->>TerraformCLI: terraform plan
+    TerraformCLI->>MainTF: Parse resources and provider dependencies
+    MainTF->>DockerProvider: Verify Docker provider
+    DockerProvider-->>MainTF: Provider verified
+    MainTF->>ResourceMgr: Identify resource dependencies
+    ResourceMgr->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
+    ResourceMgr->>DockerProvider: Plan docker_container resource (nodered with port mapping)
+    DockerProvider-->>ResourceMgr: Plan generated
+    ResourceMgr-->>TerraformCLI: Execution plan generated
+    TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
+
+    %% Apply phase
+    User->>TerraformCLI: terraform apply
+    TerraformCLI->>MainTF: Parse and execute resource configurations
+    MainTF->>ResourceMgr: Manage resource orchestration
+    ResourceMgr->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
+    DockerProvider-->>ResourceMgr: docker_image resource created
+    ResourceMgr->>DockerProvider: Create docker_container resource (nodered with port mapping)
+    DockerProvider-->>ResourceMgr: docker_container resource created
+    ResourceMgr-->>TerraformCLI: Apply complete
+    TerraformCLI-->>User: Apply successful
+```
 
 ## Deploying a Docker Container
 
