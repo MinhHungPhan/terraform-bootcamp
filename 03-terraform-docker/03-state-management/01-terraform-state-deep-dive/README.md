@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Terraform Dependencies](#terraform-dependencies)
 - [Understanding Terraform State](#understanding-terraform-state)
 - [Working with Terraform State](#working-with-terraform-state)
 - [Accessing State Data](#accessing-state-data)
@@ -14,6 +15,51 @@
 Welcome back! This tutorial is designed to delve deeper into the concept of Terraform state management. This is essential knowledge for anyone who wants to understand how Terraform tracks and manages the resources that it deploys. 
 
 In this lesson, we'll explore what Terraform state is, how it operates, and how you can interact with it. We'll also see some examples of how it looks and behaves in a live environment.
+
+## Terraform Dependencies
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant TerraformCLI as Terraform CLI
+    participant MainTF as main.tf
+    participant DockerProvider as Docker Provider
+    participant StateFile as Terraform State
+
+    %% Init phase
+    User->>TerraformCLI: terraform init
+    TerraformCLI->>MainTF: Read configuration
+    MainTF->>DockerProvider: Load Docker provider (kreuzwerker/docker ~> 2.15.0)
+    TerraformCLI->>StateFile: Configure backend and fetch state
+    StateFile-->>TerraformCLI: State fetched
+    DockerProvider-->>TerraformCLI: Provider initialized
+    TerraformCLI-->>User: Initialization successful
+
+    %% Plan phase
+    User->>TerraformCLI: terraform plan
+    TerraformCLI->>MainTF: Parse resources and provider dependencies
+    MainTF->>DockerProvider: Verify Docker provider
+    DockerProvider-->>MainTF: Provider verified
+    TerraformCLI->>StateFile: Compare current state with configuration
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
+    MainTF->>DockerProvider: Plan docker_container resource (nodered with port mapping)
+    DockerProvider-->>TerraformCLI: Plan generated
+    TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
+
+    %% Apply phase
+    User->>TerraformCLI: terraform apply
+    TerraformCLI->>MainTF: Parse and execute resource configurations
+    TerraformCLI->>StateFile: Fetch current state
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
+    DockerProvider-->>MainTF: docker_image resource created
+    MainTF->>DockerProvider: Create docker_container resource (nodered with port mapping)
+    DockerProvider-->>MainTF: docker_container resource created
+    TerraformCLI->>StateFile: Update state with new resources
+    StateFile-->>TerraformCLI: State updated
+    TerraformCLI-->>User: Apply successful
+```
 
 ## Understanding Terraform State
 
