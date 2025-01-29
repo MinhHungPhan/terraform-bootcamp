@@ -5,6 +5,7 @@ Welcome to this comprehensive guide on utilizing outputs in Terraform. If you've
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Terraform Dependencies](#terraform-dependencies)
 - [Application of Outputs](#application-of-outputs)
 - [Accessing Attributes](#accessing-attributes)
 - [Creating Output Values](#creating-output-values)
@@ -15,6 +16,53 @@ Welcome to this comprehensive guide on utilizing outputs in Terraform. If you've
 ## Introduction
 
 In order to understand and utilize Terraform outputs effectively, make sure you have applied the necessary state file for your Terraform deployment. This guide continues from the last lesson, assuming that the application of the state file has already been done. If not, apply it before continuing.
+
+## Terraform Dependencies
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant TerraformCLI as Terraform CLI
+    participant MainTF as main.tf
+    participant DockerProvider as Docker Provider
+    participant StateFile as Terraform State
+
+    %% Init phase
+    User->>TerraformCLI: terraform init
+    TerraformCLI->>MainTF: Read configuration
+    MainTF->>DockerProvider: Load Docker provider (kreuzwerker/docker ~> 2.15.0)
+    TerraformCLI->>StateFile: Configure backend and fetch state
+    StateFile-->>TerraformCLI: State fetched
+    DockerProvider-->>TerraformCLI: Provider initialized
+    TerraformCLI-->>User: Initialization successful
+
+    %% Plan phase
+    User->>TerraformCLI: terraform plan
+    TerraformCLI->>MainTF: Parse resources and provider dependencies
+    MainTF->>DockerProvider: Verify Docker provider
+    DockerProvider-->>MainTF: Provider verified
+    TerraformCLI->>StateFile: Compare current state with configuration
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
+    MainTF->>DockerProvider: Plan docker_container resource (nodered with port mapping)
+    MainTF->>MainTF: Identify output dependencies (IP-Address, Container-name)
+    DockerProvider-->>TerraformCLI: Plan generated
+    TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
+
+    %% Apply phase
+    User->>TerraformCLI: terraform apply
+    TerraformCLI->>MainTF: Parse and execute resource configurations
+    TerraformCLI->>StateFile: Fetch current state
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
+    DockerProvider-->>MainTF: docker_image resource created
+    MainTF->>DockerProvider: Create docker_container resource (nodered with port mapping)
+    DockerProvider-->>MainTF: docker_container resource created
+    MainTF->>MainTF: Evaluate outputs (IP-Address, Container-name)
+    TerraformCLI->>StateFile: Update state with new resources and outputs
+    StateFile-->>TerraformCLI: State updated
+    TerraformCLI-->>User: Apply successful, outputs available (IP-Address, Container-name)
+```
 
 ## Application of Outputs
 
