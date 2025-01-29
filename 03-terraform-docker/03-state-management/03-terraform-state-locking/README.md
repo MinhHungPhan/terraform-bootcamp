@@ -40,6 +40,7 @@ cd terraform-docker
 ```bash
 terraform plan
 ```
+
 Ensure that the desired resources are set to be deployed.
 
 2. **Set up Terraform Apply Commands**:
@@ -62,11 +63,19 @@ terraform apply --auto-approve
 
 You'll observe both commands applying. In typical scenarios, simultaneous deployments might lead to conflicts or collisions. But, because of the use of the `random` resource, the containers are named differently.
 
-On inspecting the state, you'll find:
+- **Inspecting the State**
 
-- **Only one container in the state**: This means that even though both deployments ran, only one container's information got written to the state.
+To list all resources currently tracked in the Terraform state file, run:
+
+```bash
+terraform state list
+```
+
+Upon inspection, you may find that **only one container is recorded in the state**. This indicates that although both deployments were executed, Terraform only registered one container in its state.
 
 - **Verification with Terraform Show**:
+
+To display the full details of the Terraform state, including all resources and their attributes, run:
 
 ```bash
 terraform show
@@ -82,7 +91,23 @@ docker -a
 
 Both containers exist with their respective names, but not both are represented in the state.
 
+- **Destroy all resources**:
+
+```bash
+terraform destroy --auto-approve
+```
+
 Running `terraform destroy` after this will result in a conflict because the state does not have all the resources it needs. This shows the danger of an unlocked and imbalanced state.
+
+**Expected output**:
+
+```plaintext
+Error: Unable to remove Docker image: Error response from daemon: conflict: unable to delete d443beaad565 (cannot be forced) - image is being used by running container 9f74026f9af6
+```
+
+**Why Does This Error Occur?**
+
+Terraform is trying to remove a Docker image `(d443beaad565)`, but it cannot do so because there is a running container `(9f74026f9af6)` that is still using that image.
 
 ## Conclusion
 
