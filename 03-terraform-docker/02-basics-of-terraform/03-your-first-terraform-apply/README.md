@@ -130,3 +130,5 @@ And there you have it! You have just deployed your first application with Terraf
 
 - [Node Red Docker Hub](https://hub.docker.com/r/nodered/node-red/)
 - [Terraform Docker Provider Documentation](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/image)
+- [terraform apply](https://developer.hashicorp.com/terraform/cli/commands/apply)
+- [terraform fmt](https://developer.hashicorp.com/terraform/cli/commands/fmt)
