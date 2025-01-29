@@ -83,4 +83,4 @@ We have successfully delved deeper into Terraform initialization and understood 
 ## References
 
 - [HashiCorp. (2023). Terraform Initialization Documentation.](https://developer.hashicorp.com/terraform/cli/commands/init)
-
+- [Dependency Lock File](https://developer.hashicorp.com/terraform/language/files/dependency-lock)
