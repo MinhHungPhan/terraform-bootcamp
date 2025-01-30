@@ -5,6 +5,7 @@
 - [Introduction](#introduction)
 - [Unlocked State in Terraform](#unlocked-state-in-terraform)
 - [Demonstration Setup](#demonstration-setup)
+- [Using `random_string` Resource](#using-random_string-resource)
 - [Executing the Unlocked Terraform Apply](#executing-the-unlocked-terraform-apply)
 - [Observing the Results](#observing-the-results)
 - [Conclusion](#conclusion)
@@ -18,7 +19,7 @@ Welcome to this lesson where we delve into the intricacies of Terraform state ma
 
 In single engineer deployments, it might seem unlikely to encounter concurrent Terraform deployments. However, in larger production settings, simultaneous deployments can and do happen, leading to potential issues. Let's find out what happens when a Terraform state file becomes unlocked and two deployments are triggered simultaneously.
 
-### Demonstration Setup
+## Demonstration Setup
 
 1. **Initiate Two Terminals**: Open two terminal windows. Ensure you're logged into the appropriate account.
 
@@ -33,7 +34,129 @@ cd terraform-docker
 
 4. **Arrange Terminals**: For easy visibility, adjust both terminal windows so you can access them simultaneously. You can have a split-screen configuration or stack them vertically.
 
-### Executing the Unlocked Terraform Apply
+## Using `random_string` Resource
+
+### **Step 1: Generate a Random String**
+
+The following Terraform resource generates a **random string** to be used as part of the container name.
+
+```hcl
+resource "random_string" "random" {
+  count   = 1
+  length  = 4
+  special = false
+  upper   = false
+}
+```
+
+### **How It Works:**
+
+- Generates a **4-character long** string.
+- No special characters (`special = false`).
+- Only lowercase letters (`upper = false`).
+- `count = 1` ensures **only one** random string is created.
+
+### **Example Output:**
+
+If Terraform generates `"ab12"`, then:
+
+```hcl
+random_string.random[0].result = "ab12"
+```
+
+## **Step 2: Create a Docker Container**
+
+Terraform then creates a **Docker container** using the randomly generated string for a unique name.
+
+```hcl
+resource "docker_container" "nodered_container" {
+  count = 1
+  name  = join("-", ["nodered", random_string.random[count.index].result])
+  image = docker_image.nodered_image.latest
+
+  ports {
+    internal = 1880
+    # external = 1880
+  }
+}
+```
+
+### **How It Works:**
+
+- `count = 1`: Creates **one container**.
+- `name = join("-", ["nodered", random_string.random[count.index].result])`:
+    - Combines `"nodered"` with the random string.
+    - Example: `"nodered-ab12"`.
+- `image = docker_image.nodered_image.latest`: Uses the **Node-RED** Docker image.
+- `ports { internal = 1880 }`: 
+    - The container exposes **port 1880 internally** (used by Node-RED).
+    - The external port is commented out (`# external = 1880`), meaning the container **does not expose port 1880 to the host**.
+
+## **Step 3: Understanding `count.index` and `.result`**
+
+### **Why Use `count.index`?**
+
+```hcl
+random_string.random[count.index].result
+```
+
+Terraform treats resources with `count` as **arrays**, even if `count = 1`.  
+
+- `count.index` represents **the index of the resource being created** (starting from `0`).
+- Since `random_string.random` is an array, we must specify `[count.index]` to access its elements.
+
+📌 **Without `count.index`, Terraform would not know which random string to use.**  
+
+If `count = 3`, the references would be:
+
+```
+random_string.random[0].result  # First container
+random_string.random[1].result  # Second container
+random_string.random[2].result  # Third container
+```
+
+**Final Analogy – Think of `count.index` Like a For-Loop**
+
+Terraform doesn’t use a traditional programming loop, but **you can think of `count` as working like this pseudo-code:**
+
+```python
+for index in range(3):  # Simulates Terraform count = 3
+    print(f"Creating Server {index}")  # Simulates count.index
+```
+
+**Output:**
+
+```plaintext
+Creating Server 0
+Creating Server 1
+Creating Server 2
+```
+
+✅ **Terraform automatically assigns `count.index` in the same way**.
+
+### **Why `.result`?**
+
+When Terraform creates a `random_string`, it stores multiple attributes inside an object.  
+
+Example Terraform state:
+
+```hcl
+random_string.random[0] = {
+  id      = "random_1234"
+  length  = 4
+  lower   = true
+  special = false
+  upper   = false
+  result  = "ab12"  # This is the actual random string
+}
+```
+
+- `random_string.random[count.index]` is an **object** with multiple attributes.
+- `.result` extracts **only the generated random string**.
+
+**If you remove `.result`, Terraform will throw an error** because it will try to use an object instead of a string.
+
+## Executing the Unlocked Terraform Apply
 
 1. **Inspect Plan**:
 
@@ -133,3 +256,5 @@ In our next lesson, we'll explore ways to rectify such issues and maintain a con
 
 - [Terraform State Management](https://www.terraform.io/docs/language/state/index.html)
 - [Terraform State Locking](https://developer.hashicorp.com/terraform/language/state)
+- [The count Meta-Argument](https://developer.hashicorp.com/terraform/language/meta-arguments/count)
+- [random_string (Resource)](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string)
