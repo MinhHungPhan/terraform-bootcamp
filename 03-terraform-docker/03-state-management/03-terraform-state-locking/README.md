@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Terraform Dependencies](#terraform-dependencies)
 - [Unlocked State in Terraform](#unlocked-state-in-terraform)
 - [Demonstration Setup](#demonstration-setup)
 - [Using `random_string` Resource](#using-random_string-resource)
@@ -14,6 +15,61 @@
 ## Introduction
 
 Welcome to this lesson where we delve into the intricacies of Terraform state management. Today, we're going to explore a crucial concept in Terraform — state locking — and see the ramifications of an unlocked state.
+
+## Terraform Dependencies
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant TerraformCLI as Terraform CLI
+    participant MainTF as main.tf
+    participant RandomProvider as Random Provider
+    participant DockerProvider as Docker Provider
+    participant StateFile as Terraform State
+
+    %% Init phase
+    User->>TerraformCLI: terraform init
+    TerraformCLI->>MainTF: Read configuration
+    MainTF->>RandomProvider: Load Random provider (hashicorp/random)
+    MainTF->>DockerProvider: Load Docker provider (kreuzwerker/docker ~> 2.15.0)
+    TerraformCLI->>StateFile: Configure backend and fetch state
+    StateFile-->>TerraformCLI: State fetched
+    RandomProvider-->>TerraformCLI: Provider initialized
+    DockerProvider-->>TerraformCLI: Provider initialized
+    TerraformCLI-->>User: Initialization successful
+
+    %% Plan phase
+    User->>TerraformCLI: terraform plan
+    TerraformCLI->>MainTF: Parse resources and provider dependencies
+    MainTF->>RandomProvider: Check if random string exists in state
+    StateFile-->>RandomProvider: Return stored random string (if exists)
+    RandomProvider-->>MainTF: Provide current or planned random string
+    MainTF->>DockerProvider: Verify Docker provider
+    DockerProvider-->>MainTF: Provider verified
+    TerraformCLI->>StateFile: Compare current state with configuration
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
+    MainTF->>DockerProvider: Plan docker_container resource with dynamic name
+    MainTF->>MainTF: Identify output dependencies (Container-name, IP-Address)
+    DockerProvider-->>TerraformCLI: Plan generated
+    TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
+
+    %% Apply phase
+    User->>TerraformCLI: terraform apply
+    TerraformCLI->>MainTF: Parse and execute resource configurations
+    TerraformCLI->>StateFile: Fetch current state
+    StateFile-->>TerraformCLI: Current state provided
+    MainTF->>RandomProvider: Generate new random string if necessary
+    RandomProvider-->>MainTF: Provide generated random string
+    MainTF->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
+    DockerProvider-->>MainTF: docker_image resource created
+    MainTF->>DockerProvider: Create docker_container resource with dynamic name
+    DockerProvider-->>MainTF: docker_container resource created
+    MainTF->>MainTF: Evaluate outputs (Container-name, IP-Address)
+    TerraformCLI->>StateFile: Update state with new resources and outputs
+    StateFile-->>TerraformCLI: State updated
+    TerraformCLI-->>User: Apply successful, outputs available (Container-name, IP-Address)
+```
 
 ## Unlocked State in Terraform
 
