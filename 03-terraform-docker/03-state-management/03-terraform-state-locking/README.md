@@ -4,9 +4,9 @@
 
 - [Introduction](#introduction)
 - [Unlocked State in Terraform](#unlocked-state-in-terraform)
-    - [Demonstration Setup](#demonstration-setup)
-    - [Executing the Unlocked Terraform Apply](#executing-the-unlocked-terraform-apply)
-    - [Observing the Results](#observing-the-results)
+- [Demonstration Setup](#demonstration-setup)
+- [Executing the Unlocked Terraform Apply](#executing-the-unlocked-terraform-apply)
+- [Observing the Results](#observing-the-results)
 - [Conclusion](#conclusion)
 - [References](#references)
 
@@ -59,55 +59,69 @@ terraform apply --auto-approve
 
 3. **Execute Simultaneously**: Click `Enter` in the first terminal, followed immediately by the second. Watch as both commands execute concurrently.
 
-### Observing the Results
+## Observing the Results
 
-You'll observe both commands applying. In typical scenarios, simultaneous deployments might lead to conflicts or collisions. But, because of the use of the `random` resource, the containers are named differently.
+When you apply this Terraform configuration, you’ll see both commands execute successfully. In typical scenarios, **simultaneous deployments might lead to conflicts or collisions**. However, by using the `random_string` resource, the containers are named **uniquely**, preventing name conflicts.
 
-- **Inspecting the State**
+### **Step 1: Inspect Terraform State**
 
-To list all resources currently tracked in the Terraform state file, run:
+To verify what Terraform is managing, inspect the state using:
 
 ```bash
 terraform state list
 ```
 
-Upon inspection, you may find that **only one container is recorded in the state**. This indicates that although both deployments were executed, Terraform only registered one container in its state.
+**Expected Outcome**:
 
-- **Verification with Terraform Show**:
+- You may find **only one container recorded** in the Terraform state.
+- Even if two deployments were attempted, **only one container may be registered** in the state.
 
-To display the full details of the Terraform state, including all resources and their attributes, run:
+### **Step 2: Verify Details with `terraform show`**
+
+To view the full details of the Terraform state, including resource attributes, run:
 
 ```bash
 terraform show
 ```
 
-This will confirm the above observation. If you query for a missing container, you won't find it in the state.
+**Expected Outcome**:
 
-- **View all Containers**:
+- This will confirm the previous observation.
+- If you search for a missing container, you **won’t find it in the state**.
+
+### **Step 3: List All Running Docker Containers**
+
+Even if Terraform doesn't track all deployments, the containers still exist in Docker. You can verify by running:
 
 ```bash
-docker -a
+docker ps -a
 ```
 
-Both containers exist with their respective names, but not both are represented in the state.
+**Expected Outcome**:
 
-- **Destroy all resources**:
+- Both containers will be listed with their unique names (e.g., `nodered-ab12`).
+- However, Terraform may **only recognize one of them** in its state.
+
+### **Step 4: Destroy Resources with `terraform destroy`**
+
+Now, try to destroy all Terraform-managed resources:
 
 ```bash
 terraform destroy --auto-approve
 ```
 
-Running `terraform destroy` after this will result in a conflict because the state does not have all the resources it needs. This shows the danger of an unlocked and imbalanced state.
+**Potential Error**:
 
-**Expected output**:
+Because Terraform's state **does not include all running containers**, it may fail to properly remove the Docker images, resulting in this error:
 
 ```plaintext
 Error: Unable to remove Docker image: Error response from daemon: conflict: unable to delete d443beaad565 (cannot be forced) - image is being used by running container 9f74026f9af6
 ```
 
-**Why Does This Error Occur?**
+**Why Does This Error Occur?**:
 
-Terraform is trying to remove a Docker image `(d443beaad565)`, but it cannot do so because there is a running container `(9f74026f9af6)` that is still using that image.
+- Terraform tries to remove the **Docker image (`d443beaad565`)**, but **a running container (`9f74026f9af6`) is still using it**.
+- Since the container exists **outside Terraform's state**, Terraform does not automatically stop it before removing the image.
 
 ## Conclusion
 
