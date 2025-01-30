@@ -41,16 +41,16 @@ sequenceDiagram
     %% Plan phase
     User->>TerraformCLI: terraform plan
     TerraformCLI->>MainTF: Parse resources and provider dependencies
-    MainTF->>RandomProvider: Check if random string exists in state
+    MainTF->>RandomProvider: Check if random_string resource exists
     StateFile-->>RandomProvider: Return stored random string (if exists)
-    RandomProvider-->>MainTF: Provide current or planned random string
+    RandomProvider-->>MainTF: random_string resource planned (create or retrieve)
     MainTF->>DockerProvider: Verify Docker provider
     DockerProvider-->>MainTF: Provider verified
     TerraformCLI->>StateFile: Compare current state with configuration
     StateFile-->>TerraformCLI: Current state provided
+    MainTF->>RandomProvider: Plan random_string resource
     MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
-    MainTF->>DockerProvider: Plan docker_container resource with dynamic name
-    MainTF->>MainTF: Identify output dependencies (Container-name, IP-Address)
+    MainTF->>DockerProvider: Plan docker_container resource (depends on random_string)
     DockerProvider-->>TerraformCLI: Plan generated
     TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
 
@@ -60,10 +60,10 @@ sequenceDiagram
     TerraformCLI->>StateFile: Fetch current state
     StateFile-->>TerraformCLI: Current state provided
     MainTF->>RandomProvider: Generate new random string if necessary
-    RandomProvider-->>MainTF: Provide generated random string
+    RandomProvider-->>MainTF: random_string resource created (or retrieved)
     MainTF->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
     DockerProvider-->>MainTF: docker_image resource created
-    MainTF->>DockerProvider: Create docker_container resource with dynamic name
+    MainTF->>DockerProvider: Create docker_container resource with dynamic name (using random_string)
     DockerProvider-->>MainTF: docker_container resource created
     MainTF->>MainTF: Evaluate outputs (Container-name, IP-Address)
     TerraformCLI->>StateFile: Update state with new resources and outputs
