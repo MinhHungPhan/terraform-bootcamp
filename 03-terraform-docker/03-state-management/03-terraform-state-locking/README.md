@@ -41,16 +41,11 @@ sequenceDiagram
     %% Plan phase
     User->>TerraformCLI: terraform plan
     TerraformCLI->>MainTF: Parse resources and provider dependencies
-    MainTF->>RandomProvider: Check if random_string resource exists
-    StateFile-->>RandomProvider: Return stored random string (if exists)
-    RandomProvider-->>MainTF: random_string resource planned (create or retrieve)
-    MainTF->>DockerProvider: Verify Docker provider
-    DockerProvider-->>MainTF: Provider verified
     TerraformCLI->>StateFile: Compare current state with configuration
     StateFile-->>TerraformCLI: Current state provided
     MainTF->>RandomProvider: Plan random_string resource
     MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
-    MainTF->>DockerProvider: Plan docker_container resource (depends on random_string)
+    MainTF->>DockerProvider: Plan docker_container resource (uses random_string)
     DockerProvider-->>TerraformCLI: Plan generated
     TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
 
@@ -59,12 +54,20 @@ sequenceDiagram
     TerraformCLI->>MainTF: Parse and execute resource configurations
     TerraformCLI->>StateFile: Fetch current state
     StateFile-->>TerraformCLI: Current state provided
-    MainTF->>RandomProvider: Generate new random string if necessary
+
+    %% Apply random_string
+    MainTF->>RandomProvider: Generate random_string if necessary
     RandomProvider-->>MainTF: random_string resource created (or retrieved)
-    MainTF->>DockerProvider: Create docker_image resource (nodered/node-red:latest)
-    DockerProvider-->>MainTF: docker_image resource created
-    MainTF->>DockerProvider: Create docker_container resource with dynamic name (using random_string)
-    DockerProvider-->>MainTF: docker_container resource created
+
+    %% Apply docker_image
+    MainTF->>DockerProvider: Pull docker_image (nodered/node-red:latest)
+    DockerProvider-->>MainTF: docker_image resource created (or retrieved)
+
+    %% Apply docker_container
+    MainTF->>DockerProvider: Create docker_container resource with dynamic name (uses random_string)
+    DockerProvider-->>MainTF: docker_container resource created (or retrieved)
+
+    %% Finalize and update state
     MainTF->>MainTF: Evaluate outputs (Container-name, IP-Address)
     TerraformCLI->>StateFile: Update state with new resources and outputs
     StateFile-->>TerraformCLI: State updated
