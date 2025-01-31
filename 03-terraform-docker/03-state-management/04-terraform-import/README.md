@@ -53,7 +53,21 @@ The `terraform import` command can be an invaluable tool when faced with such st
 terraform output
 ```
 
-2. First, let's add the errant Docker container to our Terraform configuration (`main.tf`):
+🎯 **Example**:
+
+```js
+Container-name = [
+  "nodered-3pf1"
+]
+IP-Address = [
+  "172.17.0.2:32785"
+]
+```
+
+- **Internal Port (1880)**: The port inside the container where the application is running.
+- **External Port (32785)**: The dynamically assigned port on the host machine that maps to the container's internal port 1880.
+
+2. Now, let's add the errant Docker container to our Terraform configuration (`main.tf`):
 
 ```hcl
 resource "docker_container" "nodered_container2" {
@@ -62,7 +76,16 @@ resource "docker_container" "nodered_container2" {
 }
 ```
 
-**Note**: Enter the `container_name` that is not tracked by the state file using the `terraform output` in the previous step. For example: `nodered-3pf1`.
+📕 **Note**: Enter the `container_name` that is not tracked by the state file using the `terraform output` in the previous step. For example: `nodered-3pf1`.
+
+🎯 **Example**:
+
+```hcl
+resource "docker_container" "nodered_container2" {
+  name  = "nodered-3pf1"
+  image = docker_image.nodered_image.latest
+}
+```
 
 3. Obtain the ID of the Docker container that isn't in the state:
 
@@ -70,10 +93,30 @@ resource "docker_container" "nodered_container2" {
 docker inspect --format="{{.ID}}" [container_name]
 ```
 
+🎯 **Example**:
+
+```bash
+docker inspect --format="{{.ID}}" nodered-3pf1
+```
+
+This command will return the ID of the Docker container named `nodered-3pf1`. The output will be a long alphanumeric string representing the container ID. Here's an example:
+
+```bash
+a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+This string is the unique identifier of the running container named `nodered-3pf1`.
+
 4. With this ID, you can now import the Docker container into the Terraform state:
 
 ```bash
 terraform import docker_container.nodered_container2 $(docker inspect --format="{{.ID}}" [container_name])
+```
+
+🎯 **Example**:
+
+```bash
+terraform import docker_container.nodered_container2 $(docker inspect --format="{{.ID}}" nodered-3pf1)
 ```
 
 After importing, you can verify its addition by checking the Terraform state again.
@@ -110,3 +153,4 @@ Handling Terraform's state can be challenging, but understanding its quirks and 
 
 - [Terraform State Import Tutorial](https://developer.hashicorp.com/terraform/tutorials/state/state-import)
 - [Terraform CLI Import Guide](https://developer.hashicorp.com/terraform/cli/import)
+- [Resource (docker_container)](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/container)
