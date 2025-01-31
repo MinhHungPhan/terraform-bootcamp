@@ -82,7 +82,7 @@ The command will search for lines containing the keyword "ip" in the Terraform s
 
 The output will show the IP address, IP prefix length, IPC mode, and other related information.
 
-Output:
+🎯 **Expected Output**:
 
 ```js
 ip_address             = "172.17.0.2"
@@ -106,7 +106,7 @@ The command will search for lines containing the keyword "name" in the Terraform
 
 The output will show the hostname, name, network name, and other related information.
 
-Output:
+🎯 **Expected Output**:
 
 ```js
 hostname          = "69512c9488c7"
@@ -118,10 +118,10 @@ image_name        = "nodered/node-red:latest"
 4. You can list all the resources that have been defined in your Terraform configuration using the following command:
 
 ```bash
-terraform list
+terraform state list
 ```
 
-Output:
+🎯 **Expected Output**:
 
 ```js
 docker_container.nodered_container
@@ -174,7 +174,7 @@ output "Container-name" {
 terraform apply --auto-approve
 ```
 
-Output:
+🎯 **Expected Output**:
 
 ```js
 Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
@@ -195,14 +195,14 @@ IP-Address = "172.17.0.2"
 terraform output
 ```
 
-Output:
+🎯 **Expected Output**:
 
 ```plaintext
 Container-name = "nodered"
 IP-Address = "172.17.0.2"
 ```
 
-Remember, these outputs will not exist until the state file is populated.
+⛳️ Remember, these outputs will not exist until the state file is populated.
 
 ## Conclusion
 
