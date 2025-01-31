@@ -27,7 +27,7 @@ sequenceDiagram
     participant DockerProvider as Docker Provider
     participant StateFile as Terraform State
 
-    %% Init phase
+    %% Init Phase
     User->>TerraformCLI: terraform init
     TerraformCLI->>MainTF: Read configuration
     MainTF->>RandomProvider: Load Random provider (hashicorp/random)
@@ -38,36 +38,44 @@ sequenceDiagram
     DockerProvider-->>TerraformCLI: Provider initialized
     TerraformCLI-->>User: Initialization successful
 
-    %% Plan phase
+    %% Plan Phase
     User->>TerraformCLI: terraform plan
     TerraformCLI->>MainTF: Parse resources and provider dependencies
+
+    %% Step: Compare Current State with Configuration
     TerraformCLI->>StateFile: Compare current state with configuration
     StateFile-->>TerraformCLI: Current state provided
+
+    %% Step: Verify Docker Provider (Only if changes are detected)
+    MainTF->>DockerProvider: Verify Docker provider connectivity
+    DockerProvider-->>MainTF: Provider verified
+
+    %% Step: Plan Resources
     MainTF->>RandomProvider: Plan random_string resource
     MainTF->>DockerProvider: Plan docker_image resource (nodered/node-red:latest)
     MainTF->>DockerProvider: Plan docker_container resource (uses random_string)
     DockerProvider-->>TerraformCLI: Plan generated
     TerraformCLI-->>User: Execution plan generated (e.g., create, update, destroy)
 
-    %% Apply phase
+    %% Apply Phase
     User->>TerraformCLI: terraform apply
     TerraformCLI->>MainTF: Parse and execute resource configurations
     TerraformCLI->>StateFile: Fetch current state
     StateFile-->>TerraformCLI: Current state provided
 
-    %% Apply random_string
+    %% Step: Apply random_string
     MainTF->>RandomProvider: Generate random_string if necessary
     RandomProvider-->>MainTF: random_string resource created (or retrieved)
 
-    %% Apply docker_image
+    %% Step: Apply docker_image
     MainTF->>DockerProvider: Pull docker_image (nodered/node-red:latest)
     DockerProvider-->>MainTF: docker_image resource created (or retrieved)
 
-    %% Apply docker_container
+    %% Step: Apply docker_container
     MainTF->>DockerProvider: Create docker_container resource with dynamic name (uses random_string)
     DockerProvider-->>MainTF: docker_container resource created (or retrieved)
 
-    %% Finalize and update state
+    %% Step: Finalize and Update State
     MainTF->>MainTF: Evaluate outputs (Container-name, IP-Address)
     TerraformCLI->>StateFile: Update state with new resources and outputs
     StateFile-->>TerraformCLI: State updated
