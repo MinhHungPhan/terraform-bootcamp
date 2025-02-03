@@ -1,4 +1,4 @@
-# Terraform: Understanding the `refresh` and `state` Commands
+# Terraform `refresh` and `state rm` Commands
 
 Welcome to this guide on understanding Terraform's `refresh` and `state` commands, as well as how they impact the state and your existing resources.
 
@@ -56,7 +56,7 @@ terraform state list
 
 ### Modifying Outputs and Refreshing
 
-Changing an output doesn't alter the actual resource. For instance, consider a scenario where you update the name of the `nodered_container` resource:
+Changing an output in Terraform doesn't alter the actual resource in your infrastructure; it only updates the state file. For instance, consider a scenario where you update the name of the `nodered_container` resource:
 
 ```hcl
 resource "docker_container" "nodered_container" {
@@ -70,15 +70,97 @@ resource "docker_container" "nodered_container" {
 }
 ```
 
-Now, let's run this following command:
+Now, let's run the following command:
 
 ```bash
 terraform refresh
 ```
 
-The change is reflected in the state's outputs, but not in the actual infrastructure.
+⚠️ **Warning: `terraform refresh` is deprecated**
 
-To observe this distinction, you can use `terraform output` to review the outputs, and subsequently, `terraform state list` to inspect the state of your resources.
+HashiCorp no longer recommends using `terraform refresh`, as Terraform automatically updates the state during `terraform plan` and `terraform apply`. Instead, use:
+
+```bash
+terraform plan -refresh-only
+```
+
+or
+
+```bash
+terraform apply -refresh-only
+```
+
+to safely update the state without modifying infrastructure.
+
+---
+
+🎯 **Example Output**:
+
+```bash
+╷
+│ Warning: The terraform refresh command is deprecated
+│ 
+│ The "terraform refresh" command is no longer needed because Terraform now
+│ automatically updates state during normal operations. Removing this command
+│ helps to avoid confusion about when it should be used. To update the state,
+│ use "terraform apply" or "terraform plan -refresh-only".
+╵
+
+Refreshing Terraform state in-memory prior to plan...
+
+docker_container.nodered_container[0]: Refreshing state... [id=a1b2c3d4e5f6]
+```
+
+This confirms that Terraform updated the state with the latest data from the actual infrastructure.
+
+To observe this distinction, you can use `terraform output` to review the outputs:
+
+```bash
+terraform output
+```
+
+🎯 **Example Output**:
+
+```bash
+Container-name = [
+  "nodereeeed-3pf1"
+]
+IP-Address = [
+  "172.17.0.2:32785"
+]
+```
+
+This confirms that the Terraform output has been updated, but the actual container in Docker remains unchanged.
+
+To inspect the state of your resources, use:
+
+```bash
+terraform state list
+```
+
+🎯 **Example Output**:
+
+```bash
+docker_container.nodered_container[0]
+docker_container.nodered_container2
+docker_image.nodered_image
+random_string.random[0]
+```
+
+This lists all resources currently tracked in the Terraform state.
+
+💡 **Explanation**:
+
+- `docker_container.nodered_container[0]`:
+  - This represents the first instance of the `docker_container` resource named `nodered_container`.
+  - The `[0]` indicates that this is the first (and in this case, only) instance in a list, as the `count` parameter is set to 1 in the `main.tf` file.
+- `docker_container.nodered_container2`
+  - This represents another `docker_container` resource named `nodered_container2`.
+  - Unlike `nodered_container`, this resource does not use the `count` parameter and is a standalone resource.
+
+---
+
+By using `terraform plan -refresh-only`, we update the Terraform state file without modifying the actual infrastructure. This approach is more reliable and recommended by HashiCorp.
 
 ### Resource Changes and Refresh Behavior
 
