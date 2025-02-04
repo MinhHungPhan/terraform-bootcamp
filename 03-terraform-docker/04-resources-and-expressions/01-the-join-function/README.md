@@ -45,16 +45,25 @@ So far, we've covered the basics. But how can we apply this in a real-world scen
 
 ### Step 1: Locating the External Port
 
-First, let's identify the Docker container's external port. Here's how you can access it, assuming the Docker container's name is "nodered_container":
+First, let's identify the Docker container's external port using the Terraform console. Open your terminal and run:
+
+```bash
+terraform console
+```
+
+Once inside the Terraform console, enter the following command:
 
 ```hcl
 docker_container.nodered_container.ports[0].external
 ```
+
 This will output:
 
 ```js
 1880
 ```
+
+Let me know if you need any more refinements! 🚀
 
 ### Step 2: Identifying the IP Address
 
@@ -63,6 +72,7 @@ Next, we need to retrieve the Docker container's IP address. Execute the followi
 ```hcl
 docker_container.nodered_container.ip_address
 ```
+
 You will receive an output like this:
 
 ```js
