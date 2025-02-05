@@ -6,7 +6,8 @@
 - [Utilizing the Count Feature in TerraForm](#utilizing-the-count-feature-in-terraform)
 - [Hands-On](#hands-on)
   - [Creating the resources](#step-1-creating-the-resources)
-  - [Using Count and Index](#step-2-using-count-and-index)
+  - [Using the `count` argument](#step-2-using-the-count-argument)
+  - [Using `count.index`](#step-3-using-countindex)
   - [Managing Outputs](#step-3-managing-outputs)
 - [Conclusion](#conclusion)
 - [References](#references)
@@ -33,6 +34,8 @@ Let's now refactor your existing Terraform code from [the previous tutorial](/03
 
 Suppose you have the following Terraform resources:
 
+**main.tf**:
+
 ```hcl
 terraform {
   required_providers {
@@ -56,13 +59,41 @@ resource "random_string" "random" {
 }
 ```
 
-In this scenario, we'll use the `count` argument with the `random_string` and `docker_container` resources to create two instances of each resource. Now, let's apply the configuration:
+### Step 2: Using the `count` argument
+
+In this scenario, we'll use the `count` argument with the `random_string` and `docker_container` resources to create two instances of each resource.
+
+1. To generate two unique random strings, add the `count` argument to the `random_string` resource:
+
+```hcl
+resource "random_string" "random" {
+  count   = 2
+  length  = 4
+  special = false
+  upper   = false
+}
+```
+
+2. Now, run the following command to create the resources:
 
 ```bash
 terraform apply --auto-approve
 ```
 
-To inspect the current status of your Terraform-managed infrastructure, execute the following command:
+🎯 **Example Output**:
+
+```js
+docker_image.nodered_image: Creating...
+docker_image.nodered_image: Creation complete after 2s [id=sha256:123abc456def789ghi]
+random_string.random[0]: Creating...
+random_string.random[1]: Creating...
+random_string.random[0]: Creation complete after 0s [id=xyz1]
+random_string.random[1]: Creation complete after 0s [id=abcd]
+
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed.
+```
+
+3. To inspect the current status of your Terraform-managed infrastructure, execute the following command:
 
 ```bash
 terraform show
@@ -107,9 +138,11 @@ resource "random_string" "random" {
 }
 ```
 
-### Step 2: Using Count and Index
+### Step 3: Using `count.index`
 
 How do we reference these resources now that a `count` argument has been added? This is where `count.index` becomes useful. It provides access to the index of each iteration of the resource being created. For instance, in the "nodered_container" resource, we are referencing each "random_string" resource using `count.index`. This guarantees that every Docker container receives a unique name.
+
+1. Modify the `docker_container` resource to include `count.index` when referencing `random_string`:
 
 ```hcl
 resource "docker_container" "nodered_container" {
@@ -124,31 +157,37 @@ resource "docker_container" "nodered_container" {
 }
 ```
 
-Now, let's apply this configuration:
+2. Now, let's apply this configuration:
 
 ```bash
 terraform apply --auto-approve
 ```
 
-Output:
+🎯 **Example Output**:
 
 ```js
-Plan: 3 to add, 0 to change, 0 to destroy.
-random_string.random[1]: Creating...
 random_string.random[0]: Creating...
-random_string.random[1]: Creation complete after 0s [id=xc92]
-random_string.random[0]: Creation complete after 0s [id=cli5]
-docker_container.nodered_container[1]: Creating...
+random_string.random[1]: Creating...
+random_string.random[0]: Creation complete after 0s [id=xyz1]
+random_string.random[1]: Creation complete after 0s [id=abcd]
+
 docker_container.nodered_container[0]: Creating...
+docker_container.nodered_container[1]: Creating...
+docker_container.nodered_container[0]: Creation complete after 3s [id=a1b2c3d4e5f6]
+docker_container.nodered_container[1]: Creation complete after 3s [id=f6e5d4c3b2a1]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 ```
 
-As depicted in the output, both random strings have been generated successfully, and the containers have been created accordingly.
+As depicted in the output, both random strings have been generated successfully, and the containers have been created accordingly. 
 
-## Step 3: Managing Outputs
+By using `count.index`, each container is assigned a unique name based on the corresponding `random_string` instance.
+
+## Step 4: Managing Outputs
 
 Now, let's explore how to handle outputs. Do remember, you cannot use `count.index` within the output block, as it is not a counted context. However, you can leverage the index to access each individual container.
 
-Consider the following example where we try to add a counter index to the output block:
+1. Consider the following example where we try to add a counter index to the output block:
 
 ```hcl
 output "Container-name" {
@@ -157,7 +196,7 @@ output "Container-name" {
 }
 ```
 
-After saving this configuration, execute the `terraform apply --auto-approve` command:
+2. After saving this configuration, execute the `terraform apply --auto-approve` command:
 
 ```bash
 terraform apply --auto-approve
@@ -181,7 +220,7 @@ This error message indicates that the "count" object is only permitted within "m
 
 This key insight should always be kept in mind for successful Terraform scripting.
 
-Now, let's rectify the error in the previous block and showcase the proper output configuration:
+3. Now, let's rectify the error in the previous block and showcase the proper output configuration:
 
 ```hcl
 output "IP-Address" {
@@ -205,13 +244,13 @@ output "Container-name2" {
 }
 ```
 
-Reapply the configuration:
+4. Reapply the configuration:
 
 ```bash
 terraform apply --auto-approve
 ```
 
-Output:
+🎯 **Example Output**:
 
 ```js
 Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
