@@ -8,6 +8,7 @@ Welcome to this guide on understanding Terraform's `refresh` and `state` command
 - [Setup](#setup)
 - [Exploring `terraform refresh`](#exploring-terraform-refresh)
 - [Managing Terraform State](#managing-terraform-state)
+- [terraform plan -refresh-only](#terraform-plan--refresh-only)
 - [Conclusion](#conclusion)
 - [References](#references)
 
@@ -160,8 +161,6 @@ This lists all resources currently tracked in the Terraform state.
 
 ---
 
-By using `terraform plan -refresh-only`, we update the Terraform state file without modifying the actual infrastructure. This approach is more reliable and recommended by HashiCorp.
-
 ### Resource Changes and Refresh Behavior
 
 It's important to note that certain changes, like the length of a random string, might require a new resource creation. Running `terraform refresh` in these cases won't make a visible change.
@@ -207,6 +206,105 @@ terraform state rm <resource_type.resource_name>
 
 Remember, manually manipulating state is risky and should only be done in emergencies. Terraform will generate a backup of the state every time you use the `state rm` command.
 
+## terraform plan -refresh-only
+
+When you run the command `terraform plan -refresh-only`, Terraform compares your local state file against real infrastructure resources, but its sole purpose is to update the state with any changes that have been made outside of Terraform. No new resources will be created, modified, or destroyed. This approach helps keep the local state in sync with reality without applying any actual changes.
+
+Here are a couple of concrete, step-by-step examples to illustrate how and why you might use the `-refresh-only` flag with `terraform plan`.
+
+---
+
+### Example 1: Updating State After a Manual Change
+
+#### Scenario
+
+Suppose you have a Terraform configuration managing an AWS S3 bucket. The Terraform code specifies a particular lifecycle rule for the bucket. However, someone on your team manually modified the bucket’s lifecycle rule in the AWS console. Now the Terraform state doesn’t match the actual configuration on AWS.
+
+#### Before `-refresh-only`
+
+1. **Terraform state**: Indicates lifecycle rule `"Rule A"` is in place.  
+2. **AWS console**: Shows that `"Rule A"` was modified or replaced by `"Rule B"`.  
+3. **Manual change**: The bucket settings in AWS are now out of sync with Terraform’s local state file.
+
+#### Using `terraform plan -refresh-only`
+
+Run the following command in your terminal:
+
+```bash
+terraform plan -refresh-only
+```
+
+Terraform will:
+1. Contact AWS to read the current state of your S3 bucket.
+2. Compare the real settings (`"Rule B"`) to what’s in the state file (`"Rule A"`).
+3. Show you a plan detailing that it will update the local state to match the updated rule in AWS.
+
+**Important**:
+
+- It won’t create a new rule or revert the changes.  
+- It simply updates Terraform’s local state to reflect the actual state in AWS.  
+
+You’ll see something like this in the plan output (simplified):
+
+```bash
+Refreshing Terraform state in-memory prior to plan...
+...
+Note: Objects have changed outside of Terraform
+- lifecycle_rule = "Rule A"
++ lifecycle_rule = "Rule B"
+Plan: 0 to add, 0 to change, 0 to destroy.
+```
+
+When you run `terraform apply -refresh-only` (or simply `terraform apply` with the plan file created from `-refresh-only`), Terraform will update its local state to show `"Rule B"` without actually making any changes to AWS.
+
+---
+
+### Example 2: Multi-Resource Check After External Updates
+
+#### Scenario
+
+You’re working on a project that manages both AWS EC2 instances and RDS databases with Terraform. Some changes were made outside of Terraform:
+- An EC2 instance type was manually resized via the AWS console.
+- The RDS instance now has a new parameter group attached, done via another tool.
+
+#### Before `-refresh-only`
+
+1. **Terraform state**: Still reflects the old instance type for EC2 and the old parameter group for RDS.  
+2. **AWS**: Actually has a different EC2 instance type and a different parameter group associated with the RDS instance.
+
+#### Using `terraform plan -refresh-only`
+
+```bash
+terraform plan -refresh-only
+```
+
+Terraform will:
+1. Read the AWS configuration for both EC2 and RDS resources.
+2. Compare that against the local Terraform state.
+3. Inform you that the EC2 instance type and RDS parameter group have changed.
+
+An example plan might show:
+
+```bash
+Refreshing Terraform state in-memory prior to plan...
+...
+EC2 changes detected:
+- instance_type = "t2.micro"
++ instance_type = "t3.small"
+
+RDS changes detected:
+- parameter_group = "old-param-group"
++ parameter_group = "new-param-group"
+
+Plan: 0 to add, 0 to change, 0 to destroy.
+```
+
+When you later apply this plan, Terraform will just update its local state to reflect the changes discovered in AWS, without modifying the EC2 instance or the RDS database itself.
+
+---
+
+By using `terraform plan -refresh-only`, we update the Terraform state file without modifying the actual infrastructure. This approach is more reliable and recommended by HashiCorp.
+
 ## Conclusion
 
 This guide explored the `refresh` and `state` commands in Terraform. While these are powerful tools, always exercise caution, especially with manual state manipulations. Regularly reviewing and practicing these concepts ensures your infrastructure management remains smooth and error-free.
@@ -217,4 +315,4 @@ Thank you for following along! Ensure to run `terraform destroy` if needed, and 
 
 - [Terraform Refresh Documentation](https://developer.hashicorp.com/terraform/cli/commands/refresh)
 - [Terraform state rm command Documentation](https://developer.hashicorp.com/terraform/cli/commands/state/rm)
-
+- [terraform plan command](https://developer.hashicorp.com/terraform/cli/commands/plan#refresh-only)
