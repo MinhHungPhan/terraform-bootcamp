@@ -37,6 +37,10 @@ resource "null_resource" "dockervol" {
 }
 ```
 
+- **`null_resource`**: The `null_resource` is a special type of resource in Terraform that doesn't manage any actual infrastructure. It is often used for running provisioners or executing scripts without creating a physical resource.
+
+- **`"dockervol"`**: This is the name of the `null_resource`. It is a logical identifier that you can reference elsewhere in your Terraform configuration.
+
 ### Setting Appropriate Permissions
 
 Ensure the Docker volume has the necessary permissions as per Node-Red's requirements.
@@ -48,6 +52,17 @@ resource "null_resource" "dockervol" {
     }
 }
 ```
+
+- **`provisioner "local-exec"`**: The **`local-exec`** provisioner allows you to execute a local shell command on the machine where Terraform is running.
+
+- **`command`**: The command being executed is:
+
+```bash
+mkdir noderedvol/ && sudo chown -R 1000:1000 noderedvol/
+```
+
+- **`mkdir noderedvol/`**: Creates a directory named `noderedvol` in the current working directory.
+- **`sudo chown -R 1000:1000 noderedvol/`**: Changes the ownership of the `noderedvol` directory (and its contents, recursively) to the user and group with the ID `1000`. This is often used to set permissions for Docker containers, as many containers run processes with a specific user ID (e.g., `1000`).
 
 ## Overcoming Idempotence Challenges
 
@@ -188,3 +203,4 @@ Congratulations! You've learned to create a persistent Node-Red setup using Terr
 - [Terraform Docker Provider](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/container)
 - [Node-Red Docker Documentation](https://nodered.org/docs/getting-started/docker)
 - [Terraform Local Exec Provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/local-exec)
+- [null_resource](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource)
