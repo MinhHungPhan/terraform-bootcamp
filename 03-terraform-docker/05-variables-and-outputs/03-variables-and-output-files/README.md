@@ -7,6 +7,7 @@ Welcome to this guide, where we'll delve deep into the importance, structure, an
 - [Introduction](#introduction)
 - [Understanding `variables.tf`](#understanding-variablestf)
 - [Grasping `Outputs.tf`](#grasping-outputstf)
+- [Understanding the "No Outputs Found" Warning](#understanding-the-no-outputs-found-warning)
 - [Benefits of Separation](#benefits-of-separation)
 - [Breaking Up The Script](#breaking-up-the-script)
 - [Terraform Actions](#terraform-actions)
@@ -100,6 +101,7 @@ When you run terraform apply, Terraform will:
 **Step 4: Get the output**
 
 When you run terraform output instance_public_ip, Terraform reads the value from the state file and prints:
+
 ```
 54.180.22.33
 ```
@@ -109,6 +111,45 @@ When you run terraform output instance_public_ip, Terraform reads the value from
 - outputs.tf defines what you want to output.
 - The actual value is stored in terraform.tfstate after resources are created.
 - terraform output lets you retrieve and display these values easily.
+
+## Understanding the "No Outputs Found" Warning
+
+When you run `terraform output` and see the "No outputs found" warning, it indicates that Terraform can't find any output values in its state file. Here's why this happens and how to resolve it:
+
+### Why This Happens
+
+```bash
+terraform output
+╷
+│ Warning: No outputs found
+│
+│ The state file either has no outputs defined, or all the defined outputs are empty. Please define an output in your configuration with the `output`
+│ keyword and run `terraform refresh` for it to become available. If you are using interpolation, please verify the interpolated value is not empty. You
+│ can use the `terraform console` command to assist.
+```
+
+This warning occurs in one of these scenarios:
+
+1. **You've defined outputs in `outputs.tf` but haven't run `terraform apply` yet**
+2. **Your state file is out of sync with your configuration**
+3. **The output values reference resources that don't exist yet**
+4. **The output values are evaluating to empty/null**
+
+### How to Resolve It
+
+After defining your outputs in `outputs.tf`, you need to either:
+
+1. **Run `terraform apply`**: This creates/updates your resources and records their actual values in the state file.
+
+```bash
+terraform apply
+```
+
+2. **Run `terraform refresh`**: This updates the state file based on the real-world infrastructure without making changes.
+
+```bash
+terraform refresh
+```
 
 ## Benefits of Separation
 
