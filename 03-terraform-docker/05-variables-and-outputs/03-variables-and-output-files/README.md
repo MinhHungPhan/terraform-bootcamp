@@ -62,6 +62,54 @@ The `outputs.tf` file showcases the results of your Terraform deployments. It gi
 - **terraform.tfstate**: Terraform stores the actual values after creating/updating resources.
 - **terraform output**: You or other automation tools can read and use these outputs.
 
+#### Example: Outputs and State File
+
+Suppose you have a Terraform configuration to create an AWS EC2 instance. You want to output the public IP address of the instance after creation.
+
+**Step 1: Define the output in outputs.tf**
+
+```hcl
+output "instance_public_ip" {
+  value = aws_instance.example.public_ip
+  description = "The public IP address of the EC2 instance"
+}
+```
+
+**Step 2: Apply Terraform**
+
+When you run terraform apply, Terraform will:
+- Create the EC2 instance.
+- Discover the real public IP (e.g., 54.180.22.33).
+- Save this value in the terraform.tfstate file under the outputs section.
+
+**Step 3: Inspect the state file (simplified output)**
+
+```json
+{
+  "outputs": {
+    "instance_public_ip": {
+      "value": "54.180.22.33",
+      "type": "string",
+      "description": "The public IP address of the EC2 instance"
+    }
+  }
+  // ... rest of the state data ...
+}
+```
+
+**Step 4: Get the output**
+
+When you run terraform output instance_public_ip, Terraform reads the value from the state file and prints:
+```
+54.180.22.33
+```
+
+**Summary:**  
+
+- outputs.tf defines what you want to output.
+- The actual value is stored in terraform.tfstate after resources are created.
+- terraform output lets you retrieve and display these values easily.
+
 ## Benefits of Separation
 
 1. **Clarity**: Segregating variables and outputs ensures your Terraform code is easier to read and understand.
