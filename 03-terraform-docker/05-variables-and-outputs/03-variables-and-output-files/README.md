@@ -37,6 +37,31 @@ The `outputs.tf` file showcases the results of your Terraform deployments. It gi
 2. **Value**: Define what information about your resource you want to display.
 3. **Description**: Describe the output (optional but recommended).
 
+### How outputs.tf Works with the State File
+
+- **outputs.tf**: This file defines what information you want Terraform to “output” after it runs. These are typically important values, like resource names, IP addresses, or URLs.
+- **Terraform State File (terraform.tfstate)**: This hidden file records the real, current values of all resources managed by Terraform—including the actual values for your outputs.
+
+#### The Link:
+
+1. When you run terraform apply, Terraform creates or updates resources and calculates the output values defined in outputs.tf.
+2. Terraform saves these output values in the terraform.tfstate file.
+3. When you run terraform output, Terraform reads the values from the state file and displays them to you.
+
+#### Diagram: How Outputs Flow in Terraform
+
+```plaintext
++----------------+      +----------------------+      +----------------------+
+|  outputs.tf    | ---> |  terraform.tfstate   | ---> | terraform output     |
+| (defines what  |      | (stores actual       |      | (displays outputs    |
+|  to output)    |      |  output values)      |      |  to user)            |
++----------------+      +----------------------+      +----------------------+
+```
+
+- **outputs.tf**: You declare what you want to see (e.g., container names, IPs).
+- **terraform.tfstate**: Terraform stores the actual values after creating/updating resources.
+- **terraform output**: You or other automation tools can read and use these outputs.
+
 ## Benefits of Separation
 
 1. **Clarity**: Segregating variables and outputs ensures your Terraform code is easier to read and understand.
