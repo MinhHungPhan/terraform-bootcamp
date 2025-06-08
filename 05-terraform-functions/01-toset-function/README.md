@@ -38,8 +38,8 @@ Along the way you’ll learn how `toset()` turns a list into a unique set (no du
 Before we dive in, make sure you have:
 
 - **An AWS account** with permissions to create S3 buckets (Free Tier eligible).
-- **AWS CloudShell access** (it’s already provisioned—no local install needed!).
-- **Terraform installed** in CloudShell. Follow the official HashiCorp guide here: [Install Terraform CLI on AWS CloudShell](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+- **AWS CloudShell** - the easiest way to follow along since it's already set up for you!
+- **Terraform installed in CloudShell** - just follow the quick steps in [HashiCorp's guide](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 Once Terraform is installed, you’re all set to follow along. Ready? Let’s jump into `toset()`!
 
@@ -100,6 +100,65 @@ unique_fruits = [
 ```
 
 Notice how duplicates (`"apple"`, `"banana"`) are removed. That’s exactly what `toset()` does—no fuss, just a unique collection.
+
+### Testing the `toset()` Function in Terraform Console
+
+You can easily test the `toset()` function using Terraform's interactive console. This lets you experiment with expressions without applying any changes to your infrastructure.
+
+1. **Open the Terraform console**:
+
+```bash
+terraform console
+```
+
+2. **Test the `toset()` function on your list with duplicates**:
+
+```bash
+> toset(["apple", "banana", "apple", "orange", "banana"])
+[
+  "apple",
+  "banana",
+  "orange",
+]
+```
+
+3. **Compare lengths** to see how many duplicates were removed:
+
+```bash
+> length(["apple", "banana", "apple", "orange", "banana"])
+5
+
+> length(toset(["apple", "banana", "apple", "orange", "banana"]))
+3
+```
+
+4. **Test with variables defined in your configuration**:
+
+```bash
+> var.example_list
+[
+  "apple",
+  "banana",
+  "apple",
+  "orange",
+  "banana",
+]
+
+> toset(var.example_list)
+[
+  "apple",
+  "banana",
+  "orange",
+]
+```
+
+5. **Exit the console** when you're done:
+
+```bash
+> exit
+```
+
+This is a great way to understand how functions work before implementing them in your Terraform configuration files.
 
 ## Hands-on Exercise: Creating Unique S3 Buckets
 
@@ -338,7 +397,7 @@ terraform destroy -auto-approve
 3. **Remove local Terraform files** (optional)
 
 ```bash
-rm -rf .terraform/ terraform.tfstate*
+rm -rf .terraform* terraform.tfstate*
 ```
 
 ## Best Practices
