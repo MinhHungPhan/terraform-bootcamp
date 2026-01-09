@@ -110,7 +110,18 @@ Now you run `terraform plan` expecting to see a clean destroy operation, but ins
 
 ### Scenario 2: Multi-Account Complexity
 
-This one's a bit more advanced, but it's surprisingly common in larger organizations. Let's say you have a module that manages resources in a different AWS account:
+This one's a bit more advanced, but it's surprisingly common in larger organizations. Let's say you have a module that manages resources in a different AWS account.
+
+You start with this setup:
+
+```hcl
+# root main.tf
+module "app" {
+  source = "./modules/app"
+}
+```
+
+And inside your module:
 
 ```hcl
 # modules/app/main.tf
@@ -126,7 +137,26 @@ resource "aws_s3_bucket" "logs" {
 }
 ```
 
-This works perfectly for creating the S3 bucket in account 222222222222. But when you remove the module call from your root configuration, you lose not just the region information, but also the cross-account role assumption details. Even if you have AWS credentials for your main account, Terraform no longer knows how to assume the role in the target account to delete the bucket.
+This works perfectly for creating the S3 bucket in account 222222222222. Life is good, the bucket is created, everything's running smoothly.
+
+But here's where it gets tricky. Let's say you decide to remove the module from your root configuration:
+
+```hcl
+# root main.tf
+# module "app" {          <-- YOU DELETE THIS
+#   source = "./modules/app"
+# }
+```
+
+Now when you try to run `terraform plan` or `terraform destroy`, you're in trouble. Think about what just happened:
+
+- Terraform's **state file still remembers** the S3 bucket exists in account 222222222222
+- But you just deleted the module that contained the **connection instructions** (the `assume_role` block)
+- Even if you have AWS credentials for your main account, Terraform **no longer knows how to assume the role** in the target account
+
+It's like having a storage unit in a different city. The key and address were written on a sticky note that was attached to something you just threw away. You know the storage unit exists (it's in your records), but you've lost the key and address needed to access it.
+
+The problem here isn't just about the region - it's about losing the entire authentication chain. Your current AWS credentials might work fine for your main account, but without that `assume_role` configuration, Terraform has no way to authenticate to account 222222222222 to delete the bucket.
 
 ### Scenario 3: The Regional Confusion
 
